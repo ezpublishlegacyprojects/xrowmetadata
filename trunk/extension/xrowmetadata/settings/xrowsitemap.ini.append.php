@@ -1,7 +1,10 @@
-<?php /*
+<?php /* #?ini charset="utf8"?
 
-[SiteAccessSettings]
-
+[Settings]
+Ping=true
+Sitemap=enabled
+NewsSitemap=enabled
+VideoSitemap=enabled
 
 [SitemapSettings]
 # here you need to specify every siteaccess a sitemap shall be created for
@@ -47,4 +50,14 @@ AddFrequencyArray[]
 # depth 2 meeans 0.9, depth 3 0.8 and so on.
 AddPriorityToSubtree=true
 
+[NewsSitemapSettings]
+# Name of the publication
+Name=Test
+# Addtional Keywords 
+AdditionalKeywordList[]=Music
+AdditionalKeywordList[]=xrow GmbH
+# setting array to include classes in sitemap
+ClassFilterArray[]
+#ClassFilterArray[]=folder
+ClassFilterArray[]=article
 */?>

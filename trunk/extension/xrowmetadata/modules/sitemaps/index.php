@@ -1,41 +1,53 @@
 <?php
 
-$ini = eZINI::instance( 'xrowmetadata.ini' );
+$ini = eZINI::instance( 'xrowsitemap.ini' );
 
-$imp = new DomImplementation( );
-$dom = $imp->createDocument( 'http://www.sitemaps.org/schemas/sitemap/0.9', 'sitemapindex' );
-$dom->version = '1.0';
-$dom->encoding = 'UTF-8';
-$attr = $dom->createAttributeNS( 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation' );
-$attr->value = 'http://www.sitemaps.org/schemas/sitemap/0.9' . ' ' . 'http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd';
-$dom->documentElement->appendChild( $attr );
-$sitemap = $dom->createElement( 'sitemap', 'asdasd' );
-$attr->appendChild( $sitemap );
-$dirname = eZSys::storageDirectory() . '/sitemap';
-$dir = new DirectoryIterator( $dirname );
-foreach ( $dir as $file2 )
+$Module = $Params['Module'];
+$access = $GLOBALS['eZCurrentAccess']['name'];
+
+if ( $ini->hasVariable( 'Settings', 'SiteAccessList' ) )
 {
-    if ( ! $file2->isDot() and $file2->isDir() and ( strpos( $_SERVER['HTTP_HOST'], $file2->getFilename() ) !== false ) )
+    $alist = $ini->hasVariable( 'Settings', 'SiteAccessList' );
+    if ( ! in_array( $access, $alist ) )
     {
-        $dir2 = new DirectoryIterator( $file2->getPathname() );
-        foreach ( $dir2 as $file )
-        {
-            if ( $file->isDot() and $file->isDir() )
-            {
-                continue;
-            }
-            $dt = new DateTime( "@" . $file->getMTime() );
-            $sitemap = $dom->createElement( 'sitemap' );
-            $loc = $dom->createElement( 'loc', 'http://' . $_SERVER['HTTP_HOST'] . '/' . $dirname . '/' . $file2->getFilename() . '/' . $file->getFilename() );
-            $lastmod = $dom->createElement( 'lastmod', $dt->format( DateTime::W3C ) );
-            $sitemap->appendChild( $loc );
-            $sitemap->appendChild( $lastmod );
-            $dom->documentElement->appendChild( $sitemap );
-        }
+        return $Module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' );
     }
 }
+
+$index = new xrowSitemapIndex();
+
+$dirname = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
+$dir = new DirectoryIterator( $dirname );
+
+foreach ( $dir as $file )
+{
+    if ( $file->isDot() and $file->isDir() )
+    {
+        continue;
+    }
+    $date = new xrowSitemapItemModified();
+    $date->date = new DateTime( "@" . $file->getMTime() );
+    $loc = 'http://' . $_SERVER['HTTP_HOST'] . '/' . $dirname . '/' . $file->getFilename();
+    
+    $index->add( $loc, array( 
+        $date 
+    ) );
+}
+
 unset( $dir );
-$content = $dom->saveXML();
+
+// Append foreign Sitemaps
+if ( $ini->hasVariable( 'Settings', 'AddSitemapIndex' ) )
+{
+    $urlList = $ini->variable( 'Settings', 'AddSitemapIndex' );
+    foreach ( $urlList as $loc )
+    {
+        $index->add( $loc, array( 
+            $date 
+        ) );
+    }
+}
+$content = $index->saveXML();
 
 // Set header settings
 header( 'Content-Type: text/xml; charset=UTF-8' );
