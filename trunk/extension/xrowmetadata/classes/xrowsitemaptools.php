@@ -124,7 +124,7 @@ class xrowSitemapTools
                 'ClassFilterArray' => $googlesitemapsINI->variable( 'SitemapSettings', 'ClassFilterArray' ) 
             );
         }
-        $max = 49999; // max. amount of links in 1 sitemap
+        $max = 49997; // max. amount of links in 1 sitemap
         $limit = 50;
         
         // Fetch the content tree
