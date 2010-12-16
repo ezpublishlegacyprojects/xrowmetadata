@@ -23,14 +23,6 @@ if ( $googlesitemapsINI->variable( 'Settings', 'NewsSitemap' ) == 'enabled' )
     }
     xrowSitemapTools::siteaccessCallFunction( $siteAccessArray, 'xrowSitemapTools::createNewsSitemap' );
 }
-if ( $googlesitemapsINI->variable( 'Settings', 'Sitemap' ) == 'enabled' )
-{
-    if ( ! $isQuiet )
-    {
-        $cli->output( "Generating Regular Sitemaps...\n" );
-    }
-    xrowSitemapTools::siteaccessCallFunction( $siteAccessArray, 'xrowSitemapTools::createSitemap' );
-}
 
 xrowSitemapTools::ping();
 

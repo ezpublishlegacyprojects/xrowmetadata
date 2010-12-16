@@ -129,8 +129,6 @@ class xrowSitemapTools
         
         // Fetch the content tree
         $params = array( 
-            'Limit' => $max ,  
-            'Offset' => 0 , 
             'SortBy' => array( 
                 array( 
                     'depth' , 
@@ -144,11 +142,11 @@ class xrowSitemapTools
         );
         if ( isset( $params2 ) )
         {
-            array_merge( $params, $params2 );
+            $params = array_merge( $params, $params2 );
         }
-        
-        $subtreeCount = eZContentObjectTreeNode::subTreeCountByNodeID( $params, $rootNode );
-        
+
+        $subtreeCount = eZContentObjectTreeNode::subTreeCountByNodeID( $params, $rootNode->NodeID );
+
         if ( $subtreeCount == 1 )
         {
             $cli->output( "No Items found under node #" . $contentINI->variable( 'NodeSettings', 'RootNode' ) . "." );
@@ -157,11 +155,9 @@ class xrowSitemapTools
         if ( ! $isQuiet )
         {
             $amount = $subtreeCount + 1; // +1 is root node
-            
-
             $cli->output( "Adding $amount nodes to the sitemap." );
             $output = new ezcConsoleOutput();
-            $bar = new ezcConsoleProgressbar( $output, $subtreeCount );
+            $bar = new ezcConsoleProgressbar( $output, $amount );
         }
         
         $addPrio = false;
@@ -209,7 +205,7 @@ class xrowSitemapTools
         $params['Offset'] = 0;
         while ( $params['Offset'] < $max )
         {
-            $nodeArray = eZContentObjectTreeNode::subTreeByNodeID( $params, $rootNode );
+            $nodeArray = eZContentObjectTreeNode::subTreeByNodeID( $params, $rootNode->NodeID );
             foreach ( $nodeArray as $subTreeNode )
             
             {
