@@ -65,7 +65,9 @@ class xrowSitemapList
         // append to root node
         $this->root->appendChild( $node );
     }
-
+/*
+ * @TODO move this function to the domain of xrowsitemapitem later on
+ */
     function createDOMElement( $extension )
     {
         

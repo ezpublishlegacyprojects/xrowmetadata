@@ -61,11 +61,11 @@ AddPriorityToSubtree=true
 
 [NewsSitemapSettings]
 # Name of the publication
-Name=Test
+#Name=Test
 # Addtional Keywords 
-AdditionalKeywordList[]=Music
-AdditionalKeywordList[]=xrow GmbH
+#AdditionalKeywordList[]=Music
+#AdditionalKeywordList[]=xrow GmbH
 # setting array to include classes in sitemap
 #ClassFilterArray[]
-ClassFilterArray[]=article
+#ClassFilterArray[]=article
 */?>
