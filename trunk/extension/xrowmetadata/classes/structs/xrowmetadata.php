@@ -8,6 +8,7 @@ class xrowMetaData extends ezcBaseStruct
     public $keywords;
     public $description;
     public $googlemap;
+
     public function __construct( $title = false, $keywords = false, $description = false, $priority = false, $change = false, $googlemap = false )
     {
         $this->title = $title;
@@ -19,7 +20,7 @@ class xrowMetaData extends ezcBaseStruct
         }
         else
         {
-        	$this->priority = $priority;
+            $this->priority = $priority;
         }
         if ( empty( $change ) )
         {
@@ -35,26 +36,29 @@ class xrowMetaData extends ezcBaseStruct
         }
         elseif ( empty( $googlemap ) )
         {
-        	$this->googlemap = '0';
+            $this->googlemap = '0';
         }
         else
         {
-        	$this->googlemap = '1';
+            $this->googlemap = '1';
         }
     }
-    function hasattribute($name)
+
+    function hasattribute( $name )
     {
-        $classname = get_class($this);
-        $vars = get_class_vars($classname);
-        if ( array_key_exists($name,$vars) )
+        $classname = get_class( $this );
+        $vars = get_class_vars( $classname );
+        if ( array_key_exists( $name, $vars ) )
             return true;
         else
             return false;
     }
-    function attribute($name)
+
+    function attribute( $name )
     {
         return $this->$name;
     }
+
     /**
      * @return xrowMetaData
      */

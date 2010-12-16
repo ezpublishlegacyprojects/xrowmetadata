@@ -9,15 +9,22 @@ class xrowSitemapItemNews extends xrowSitemapItem
     public $title; // text
     public $keywords = array(); // array
     public $stock_tickers = array(); // Array
+
     function __construct()
     {
-    	if ( !eZINI::instance( 'xrowsitemap.ini' )->hasVariable( 'NewsSitemapSettings', 'Name' ) )
-    	{
-    		throw new Exception( "Publication Name is required for News Sitemap" );	
-    	}
-    	$this->publication = array( 'name' => eZINI::instance( 'xrowsitemap.ini' )->variable( 'NewsSitemapSettings', 'Name' ), 'language' => xrowSitemapTools::language() );
-    	$this->genres = array( 'PressRelease' );
+        if ( ! eZINI::instance( 'xrowsitemap.ini' )->hasVariable( 'NewsSitemapSettings', 'Name' ) )
+        {
+            throw new Exception( "Publication Name is required for News Sitemap" );
+        }
+        $this->publication = array( 
+            'name' => eZINI::instance( 'xrowsitemap.ini' )->variable( 'NewsSitemapSettings', 'Name' ) , 
+            'language' => xrowSitemapTools::language() 
+        );
+        $this->genres = array( 
+            'PressRelease' 
+        );
     }
+
     /**
      * @return xrowMetaData
      */

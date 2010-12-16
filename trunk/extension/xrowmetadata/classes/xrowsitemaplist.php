@@ -123,7 +123,12 @@ class xrowSitemapList
             $title = $this->dom->createElement( 'news:title' );
             $title->appendChild( $this->dom->createTextNode( $extension->title ) );
             $news->appendChild( $title );
-            
+            if ( $extension->access )
+            {
+                $access = $this->dom->createElement( 'news:access' );
+                $access->appendChild( $this->dom->createTextNode( $extension->access ) );
+                $news->appendChild( $access );
+            }
             if ( count( $extension->keywords ) > 0 )
             {
                 $keywords = $this->dom->createElement( 'news:keywords' );
@@ -151,7 +156,7 @@ class xrowSitemapList
             $file->delete();
         }
         $xml = $this->dom->saveXML();
-        return $file->storeContents( $xml, null, 'text/xml' );
+        return $file->storeContents( $xml, 'sitemap', 'text/xml' );
     }
 
     /**

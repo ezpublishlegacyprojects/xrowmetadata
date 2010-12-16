@@ -2,15 +2,15 @@
 
 [CronjobPart-sitemap]
 Scripts[]
-Scripts[]=generate.php
+Scripts[]=sitemap.php
 
 [CronjobPart-newssitemap]
 Scripts[]
 Scripts[]=newssitemap.php
 
 [CronjobSettings]
-Scripts[]=generate.php
+Scripts[]=sitemap.php
 Scripts[]=newssitemap.php
 ExtensionDirectories[]=xrowmetadata
 
-*/ ?>
+*/?>

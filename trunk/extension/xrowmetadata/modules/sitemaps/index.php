@@ -17,17 +17,14 @@ if ( $ini->hasVariable( 'Settings', 'SiteAccessList' ) )
 $index = new xrowSitemapIndex();
 
 $dirname = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
-$dir = new DirectoryIterator( $dirname );
+
+$dir = new eZClusterDirectoryIterator( $dirname );
 
 foreach ( $dir as $file )
 {
-    if ( $file->isDot() and $file->isDir() )
-    {
-        continue;
-    }
     $date = new xrowSitemapItemModified();
-    $date->date = new DateTime( "@" . $file->getMTime() );
-    $loc = 'http://' . $_SERVER['HTTP_HOST'] . '/' . $dirname . '/' . $file->getFilename();
+    $date->date = new DateTime( "@" . $file->mtime() );
+    $loc = 'http://' . $_SERVER['HTTP_HOST'] . '/'. $file->name();
     
     $index->add( $loc, array( 
         $date 

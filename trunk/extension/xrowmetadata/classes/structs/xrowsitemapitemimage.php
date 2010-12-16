@@ -7,6 +7,7 @@ class xrowSitemapItemImage extends xrowSitemapItem
     public $geo_location = array(); // Array
     public $title; // text
     public $license; // text
+
     /**
      * @return xrowMetaData
      */
