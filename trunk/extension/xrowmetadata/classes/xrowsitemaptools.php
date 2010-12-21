@@ -449,7 +449,7 @@ class xrowSitemapTools
                             if ( $attribute->hasContent() )
                             {
                                 $keywordattribute = $attribute->content();
-                                $news->keywords = array_merge( $news->keywords, $keywordattribute->KeywordArray );
+                                $news->keywords = array_merge( $keywordattribute->KeywordArray, $news->keywords );
                             }
                             break;
                     }
