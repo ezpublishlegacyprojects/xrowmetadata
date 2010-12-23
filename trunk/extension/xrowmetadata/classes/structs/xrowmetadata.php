@@ -5,11 +5,11 @@ class xrowMetaData extends ezcBaseStruct
     public $priority;
     public $change;
     public $title;
-    public $keywords;
+    public $keywords = array();
     public $description;
     public $googlemap;
 
-    public function __construct( $title = false, $keywords = false, $description = false, $priority = false, $change = false, $googlemap = false )
+    public function __construct( $title = false, $keywords = array(), $description = false, $priority = false, $change = false, $googlemap = false )
     {
         $this->title = $title;
         $this->keywords = $keywords;

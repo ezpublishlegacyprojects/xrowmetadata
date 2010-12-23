@@ -42,7 +42,7 @@
 	    <title>{$meta.title|wash}</title>
 	{/if}
 	{if $meta.keywords}
-	    <meta name="keywords" content="{$meta.keywords|wash}" />
+	    <meta name="keywords" content="{$meta.keywords|implode(',')|wash}" />
 	{/if}
 	{if $meta.description}
 	    <meta name="description" content="{$meta.description|wash}" />

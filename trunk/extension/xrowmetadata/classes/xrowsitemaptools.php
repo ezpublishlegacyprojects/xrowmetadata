@@ -422,10 +422,8 @@ class xrowSitemapTools
                 eZURI::transformURI( $url, true );
                 $url = 'http://' . self::domain() . $url;
                 $dm = $node->dataMap();
-                if ( $ini->hasVariable( 'NewsSitemapSettings', 'AdditionalKeywordList' ) )
-                {
-                    $news->keywords = $ini->variable( 'NewsSitemapSettings', 'AdditionalKeywordList' );
-                }
+                $news->keywords = array();
+				
                 foreach ( $dm as $attribute )
                 {
                     switch ( $attribute->DataTypeString )
@@ -445,16 +443,26 @@ class xrowSitemapTools
                                 $images[] = $image;
                             }
                             break;
+                        case 'xrowmetadata':
+                            if ( $attribute->hasContent() )
+                            {
+                                $keywordattribute = $attribute->content();
+                                $news->keywords = array_merge( $news->keywords, $keywordattribute->keywords );
+                            }
+                        break;
                         case 'ezkeyword':
                             if ( $attribute->hasContent() )
                             {
                                 $keywordattribute = $attribute->content();
-                                $news->keywords = array_merge( $keywordattribute->KeywordArray, $news->keywords );
+                                $news->keywords = array_merge( $news->keywords, $keywordattribute->KeywordArray  );
                             }
                             break;
                     }
                 }
-                
+                if ( $ini->hasVariable( 'NewsSitemapSettings', 'AdditionalKeywordList' ) )
+                {
+                    $news->keywords = array_merge( $news->keywords, $ini->variable( 'NewsSitemapSettings', 'AdditionalKeywordList' ) );
+                }
                 $sitemap->add( $url, array_merge( array( 
                     $news 
                 ), $images ) );

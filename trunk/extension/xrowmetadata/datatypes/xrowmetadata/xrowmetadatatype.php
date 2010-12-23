@@ -59,7 +59,11 @@ class xrowMetaDataType extends eZDataType
                     return eZInputValidator::STATE_INVALID;
                 }
             }
-
+            if ( count( $data['description'] ) > 160 )
+            {
+                    $contentObjectAttribute->setValidationError( ezi18n( 'kernel/classes/datatypes', 'Description should be shorter as 155 characters.' ) );
+                    return eZInputValidator::STATE_INVALID;
+            }
         }
         return eZInputValidator::STATE_ACCEPTED;
     }
@@ -72,6 +76,16 @@ class xrowMetaDataType extends eZDataType
         if ( $http->hasPostVariable( $base . '_xrowmetadata_data_array_' . $contentObjectAttribute->attribute( 'id' ) ) )
         {
             $data = $http->postVariable( $base . '_xrowmetadata_data_array_' . $contentObjectAttribute->attribute( 'id' ) );
+            $data['keywords'] = explode( ',', $data['keywords'] );
+            $new = array();
+            foreach( $data['keywords'] as $keyword )
+            {
+            	if ( trim( $keyword ) )
+            	{
+            		$new[] = trim( $keyword );
+            	}
+            }
+            $data['keywords'] = $new;
             $meta = self::fillMetaData( $data );
             $contentObjectAttribute->setContent( $meta );
             return true;
@@ -121,7 +135,7 @@ class xrowMetaDataType extends eZDataType
         $xmldom = $xml->createElement( "MetaData" );
         $node = $xml->createElement( "title", htmlspecialchars( $meta->title, ENT_QUOTES, 'UTF-8' ) );
         $xmldom->appendChild( $node );
-        $node = $xml->createElement( "keywords", htmlspecialchars( $meta->keywords, ENT_QUOTES, 'UTF-8' ) );
+        $node = $xml->createElement( "keywords", htmlspecialchars( implode(',', $meta->keywords) , ENT_QUOTES, 'UTF-8' ) );
         $xmldom->appendChild( $node );
         $node = $xml->createElement( "description", htmlspecialchars( $meta->description, ENT_QUOTES, 'UTF-8' ) );
         $xmldom->appendChild( $node );
@@ -136,7 +150,7 @@ class xrowMetaDataType extends eZDataType
 
         // save keywords
         $keyword = new eZKeyword();
-        $keyword->initializeKeyword( $meta->keywords );
+        $keyword->setKeywordArray( $meta->keywords );
         $keyword->store( $attribute );
     }
 
@@ -222,7 +236,7 @@ class xrowMetaDataType extends eZDataType
         {
            $xml = new SimpleXMLElement( $attribute->attribute( 'data_text' ) );
            $meta = new xrowMetaData( htmlspecialchars_decode( (string)$xml->title, ENT_QUOTES ),
-                                     htmlspecialchars_decode( (string)$xml->keywords, ENT_QUOTES ),
+                                     explode( ",", htmlspecialchars_decode( (string)$xml->keywords, ENT_QUOTES ) ),
                                      htmlspecialchars_decode( (string)$xml->description, ENT_QUOTES ),
                                      htmlspecialchars_decode( (string)$xml->priority, ENT_QUOTES ),
                                      htmlspecialchars_decode( (string)$xml->change, ENT_QUOTES ),

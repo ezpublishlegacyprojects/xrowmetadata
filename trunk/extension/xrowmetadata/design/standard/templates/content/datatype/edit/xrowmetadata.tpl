@@ -14,20 +14,20 @@
 <div class="block">
 
 <label>{'Keywords'|i18n( 'design/standard/class/datatype' )}:</label>
-<input id="ezcoa-{if ne( $attribute_base, 'ContentObjectAttribute' )}{$attribute_base}-{/if}{$attribute.contentclassattribute_id}_{$attribute.contentclass_attribute_identifier}_keywords" class="box ezcc-{$attribute.object.content_class.identifier} ezcca-{$attribute.object.content_class.identifier}_{$attribute.contentclass_attribute_identifier}" type="text" name="{$attribute_base}_xrowmetadata_data_array_{$attribute.id}[keywords]" size="100" maxsize="1055" value="{$attribute.content.keywords|wash()}" />
+<input id="ezcoa-{if ne( $attribute_base, 'ContentObjectAttribute' )}{$attribute_base}-{/if}{$attribute.contentclassattribute_id}_{$attribute.contentclass_attribute_identifier}_keywords" class="box ezcc-{$attribute.object.content_class.identifier} ezcca-{$attribute.object.content_class.identifier}_{$attribute.contentclass_attribute_identifier}" type="text" name="{$attribute_base}_xrowmetadata_data_array_{$attribute.id}[keywords]" size="100" maxsize="1055" value="{$attribute.content.keywords|implode( ', ' )|wash()}" />
 </div>
 
 <div class="block">
 
-<label>{'Googlemap'|i18n( 'design/standard/class/datatype' )}:</label>
+<div class="element"> 
+<label>{'Sitemap'|i18n( 'design/standard/class/datatype' )}:</label>
 <select id="ezcoa-{if ne( $attribute_base, 'ContentObjectAttribute' )}{$attribute_base}-{/if}{$attribute.contentclassattribute_id}_{$attribute.contentclass_attribute_identifier}_keywords" class="ezcc-{$attribute.object.content_class.identifier} ezcca-{$attribute.object.content_class.identifier}_{$attribute.contentclass_attribute_identifier}" name="{$attribute_base}_xrowmetadata_data_array_{$attribute.id}[googlemap]" size="1">
 <option value="0" {if ne($attribute.content.googlemap,'1')}selected{/if}>disabled</option>
 <option value="1" {if eq($attribute.content.googlemap,'1')}selected{/if}>enabled</option>
 </select>
 </div>
 
-<div class="block">
-
+<div class="element">
 <label>{'Change frequence'|i18n( 'design/standard/class/datatype' )}:</label>
 <select id="ezcoa-{if ne( $attribute_base, 'ContentObjectAttribute' )}{$attribute_base}-{/if}{$attribute.contentclassattribute_id}_{$attribute.contentclass_attribute_identifier}_keywords" class="ezcc-{$attribute.object.content_class.identifier} ezcca-{$attribute.object.content_class.identifier}_{$attribute.contentclass_attribute_identifier}" name="{$attribute_base}_xrowmetadata_data_array_{$attribute.id}[change]" size="1">
 <option value="always" {if eq($attribute.content.change,'always')}selected{/if}>{'always'|i18n( 'design/standard/class/datatype' )}</option>
@@ -40,8 +40,7 @@
 </select>
 </div>
 
-<div class="block">
-
+<div class="element">
 <label>{'Priority'|i18n( 'design/standard/class/datatype' )}:</label>
 <select id="ezcoa-{if ne( $attribute_base, 'ContentObjectAttribute' )}{$attribute_base}-{/if}{$attribute.contentclassattribute_id}_{$attribute.contentclass_attribute_identifier}_keywords" class="ezcc-{$attribute.object.content_class.identifier} ezcca-{$attribute.object.content_class.identifier}_{$attribute.contentclass_attribute_identifier}" name="{$attribute_base}_xrowmetadata_data_array_{$attribute.id}[priority]" size="1">
 <option value="0.0" {if eq($attribute.content.priority,'0.0')}selected{/if}>0.0</option>
@@ -56,4 +55,6 @@
 <option value="0.9" {if eq($attribute.content.priority,'0.9')}selected{/if}>0.9</option>
 <option value="1.0" {if eq($attribute.content.priority,'1.0')}selected{/if}>1.0</option>
 </select>
+</div>
+
 </div>
