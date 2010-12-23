@@ -304,7 +304,6 @@ class xrowSitemapTools
         $filename = eZSys::storageDirectory() . '/sitemap/' . self::domain() . '/' . xrowSitemap::BASENAME . '_news_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemapList::SUFFIX;
         
         $file = eZClusterFileHandler::instance( $filename );
-        $file->delete();
         if ( $file->exists() )
         {
             $mtime = $file->mtime();
@@ -433,12 +432,20 @@ class xrowSitemapTools
                             {
                                 
                                 $imagedata = $attribute->content();
-                                $aliasdata = $imagedata->attribute( 'rss' );
-                                $image = new xrowSitemapItemImage();
-                                $image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
+                                $image = new xrowSitemapItemImage();				
+				if ( $ini->hasVariable( 'NewsSitemapSettings', 'ImageAlias' ) )
+                                {
+					$aliasdata = $imagedata->attribute( $ini->variable( 'NewsSitemapSettings', 'ImageAlias' ) );
+					$image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
+				}
+				else
+				{
+					$aliasdata = $imagedata->attribute( 'original' );
+					$image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
+				}
                                 if ( $imagedata->attribute( 'alternative_text' ) )
                                 {
-                                    $image->caption = $imagedata->attribute( 'alternative_text' );
+                                    	$image->caption = $imagedata->attribute( 'alternative_text' );
                                 }
                                 $images[] = $image;
                             }

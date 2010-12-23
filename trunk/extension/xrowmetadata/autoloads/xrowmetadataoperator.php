@@ -40,7 +40,7 @@ class xrowMetaDataOperator
                     if( $node instanceof eZContentObjectTreeNode )
                     {
                         $operatorValue = xrowMetaDataFunctions::fetchByObject( $node->attribute( 'object' ) );
-                    }
+		    }
                     else
                     {
                         $operatorValue = false;

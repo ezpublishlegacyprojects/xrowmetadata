@@ -65,6 +65,8 @@ AddPriorityToSubtree=true
 # Addtional Keywords 
 #AdditionalKeywordList[]=Music
 #AdditionalKeywordList[]=xrow GmbH
+#Image Alias used for image items
+#ImageAlias=rss
 # setting array to include classes in sitemap
 #ClassFilterArray[]
 #ClassFilterArray[]=article
