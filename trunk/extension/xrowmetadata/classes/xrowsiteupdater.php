@@ -46,6 +46,7 @@ class xrowSiteUpdater
             eZContentObject::clearCache();
             $offset += $limit;
         }
+        $bar->finish();
     }
 
     public static function removeClassAttribute( $class_identifier, $attribute_identifier )
@@ -208,6 +209,7 @@ class xrowSiteUpdater
                 eZContentObject::clearCache();
                 $offset += $limit;
             }
+            $bar->finish();
         }
     }
 }
