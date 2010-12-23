@@ -93,15 +93,11 @@ class xrowSiteUpdater
     
     }
 
-    public static function addClassAttributes( $class_identifier, $params )
+    public static function addClassAttributes( $class_identifier, $attributesInfo )
     {
         if ( isset( $class_identifier ) )
         {
             $class = eZContentClass::fetchByIdentifier( $class_identifier );
-        }
-        else
-        {
-            return false;
         }
         
         if ( ! is_object( $class ) )
