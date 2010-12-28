@@ -193,7 +193,7 @@ class xrowSitemapTools
             $extensions[] = new xrowSitemapItemPriority( $meta->priority );
             $sitemap->add( $url, $extensions );
         }
-        elseif ( $meta === false or $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
+        elseif ( $meta === false and $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
         {
             if ( $addPrio )
             {
@@ -226,13 +226,14 @@ class xrowSitemapTools
                 $url = $subTreeNode->attribute( 'url_alias' );
                 eZURI::transformURI( $url, true );
                 $url = 'http://' . xrowSitemapTools::domain() . '/' . $GLOBALS['eZCurrentAccess']['name'] . $url;
+
                 if ( $meta and $meta->googlemap != '0' )
                 {
                     $extensions[] = new xrowSitemapItemFrequency( $meta->change );
                     $extensions[] = new xrowSitemapItemPriority( $meta->priority );
                     $sitemap->add( $url, $extensions );
                 }
-                elseif ( $meta === false or $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
+                elseif ( $meta === false and $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
                 {
                     
                     if ( $addPrio )
