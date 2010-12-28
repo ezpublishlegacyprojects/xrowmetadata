@@ -7,7 +7,8 @@ Ping=true
 Sitemap=enabled
 NewsSitemap=enabled
 VideoSitemap=enabled
-
+# Always add objects even if they do not have a meta datatype
+AlwaysAdd=enabled
 
 [SitemapSettings]
 # here you need to specify every siteaccess a sitemap shall be created for

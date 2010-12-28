@@ -6,23 +6,31 @@
  * 
  */
 
+/* Legacy 4.2 */
 require_once "access.php";
 
 class xrowSitemapTools
 {
-
+	public static function changeAccess( array $access )
+	{
+		/* Legacy 4.2 */
+		changeAccess( $access );
+		unset( $GLOBALS['eZContentObjectDefaultLanguage'] );
+        eZContentLanguage::expireCache();
+        eZContentObject::clearCache();
+	}
     public static function siteaccessCallFunction( $siteaccesses = array(), $fnc = null, $param = null )
     {
+    	
         $old_access = $GLOBALS['eZCurrentAccess'];
         foreach ( $siteaccesses as $siteaccess )
         {
             /* Change the siteaccess */
-            changeAccess( array( 
+            self::changeAccess( array( 
                 "name" => $siteaccess , 
                 "type" => EZ_ACCESS_TYPE_URI 
             ) );
-            unset( $GLOBALS['eZContentObjectDefaultLanguage'] );
-            eZContentLanguage::expireCache();
+
             
             if ( $param === null )
             {
@@ -35,7 +43,7 @@ class xrowSitemapTools
                 #call_user_func_array( $fnc, $param);
             }
         }
-        changeAccess( $old_access );
+        self::changeAccess( $old_access );
     }
 
     public static function ping()
@@ -185,7 +193,7 @@ class xrowSitemapTools
             $extensions[] = new xrowSitemapItemPriority( $meta->priority );
             $sitemap->add( $url, $extensions );
         }
-        elseif ( $meta === false )
+        elseif ( $meta === false or $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
         {
             if ( $addPrio )
             {
@@ -224,7 +232,7 @@ class xrowSitemapTools
                     $extensions[] = new xrowSitemapItemPriority( $meta->priority );
                     $sitemap->add( $url, $extensions );
                 }
-                elseif ( $meta === false )
+                elseif ( $meta === false or $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
                 {
                     
                     if ( $addPrio )
