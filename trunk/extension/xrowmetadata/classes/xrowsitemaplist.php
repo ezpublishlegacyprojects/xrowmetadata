@@ -26,7 +26,7 @@ class xrowSitemapList
         $this->dom = new DOMDocument( "1.0", "UTF-8" );
         $this->dom->formatOutput = true;
         // Create DOM-Root (urlset)
-        $this->root = $this->dom->createElement( self::BASENAME );
+        $this->root = $this->dom->createElement( constant(get_class($this).'::BASENAME') );
         $this->root->setAttribute( "xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9" );
         $this->root->setAttribute( "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
         $this->root->setAttribute( "xsi:schemaLocation", "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" );
@@ -49,7 +49,7 @@ class xrowSitemapList
             return;
         }
         
-        $node = $this->dom->createElement( "url" );
+        $node = $this->dom->createElement( constant(get_class($this).'::ITEMNAME') );
         $subNode = $this->dom->createElement( 'loc' );
         $subNode->appendChild( $this->dom->createTextNode( $url ) );
         $node->appendChild( $subNode );
