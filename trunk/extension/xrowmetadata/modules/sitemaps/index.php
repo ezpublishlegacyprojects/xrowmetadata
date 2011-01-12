@@ -49,7 +49,10 @@ $content = $index->saveXML();
 // Set header settings
 header( 'Content-Type: text/xml; charset=UTF-8' );
 header( 'Content-Length: ' . strlen( $content ) );
-header( 'X-Powered-By: eZ Publish' );
+header( 'Expires: Mon, 26 Jul 1997 05:00:00 GMT' );
+header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s' ) . ' GMT' );
+header( 'Cache-Control: no-cache, must-revalidate' );
+header( 'Pragma: no-cache' );
 
 while ( @ob_end_clean() );
 
