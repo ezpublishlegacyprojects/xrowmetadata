@@ -185,7 +185,14 @@ class xrowSitemapTools
         
         $url = $rootNode->attribute( 'url_alias' );
         eZURI::transformURI( $url, true );
-        $url = 'http://' . xrowSitemapTools::domain() . '/' . $GLOBALS['eZCurrentAccess']['name'] . $url;
+        if ( $ini->variable( 'SiteAccessSettings', 'RemoveSiteAccessIfDefaultAccess' ) == 'enabled' )
+        {
+            $url = 'http://' . xrowSitemapTools::domain() . $url;
+        }
+        else
+        {
+            $url = 'http://' . xrowSitemapTools::domain() . '/' . $GLOBALS['eZCurrentAccess']['name'] . $url;
+        }
         
         if ( $meta and $meta->googlemap != '0' )
         {
@@ -222,10 +229,17 @@ class xrowSitemapTools
                 $meta = xrowMetaDataFunctions::fetchByObject( $object );
                 $extensions = array();
                 $extensions[] = new xrowSitemapItemModified( $subTreeNode->attribute( 'modified_subnode' ) );
-                
+
                 $url = $subTreeNode->attribute( 'url_alias' );
                 eZURI::transformURI( $url, true );
-                $url = 'http://' . xrowSitemapTools::domain() . '/' . $GLOBALS['eZCurrentAccess']['name'] . $url;
+                if ( $ini->variable( 'SiteAccessSettings', 'RemoveSiteAccessIfDefaultAccess' ) == 'enabled' )
+                {
+                    $url = 'http://' . xrowSitemapTools::domain() . $url;
+                }
+                else
+                {
+                    $url = 'http://' . xrowSitemapTools::domain() . '/' . $GLOBALS['eZCurrentAccess']['name'] . $url;
+                }
 
                 if ( $meta and $meta->googlemap != '0' )
                 {
