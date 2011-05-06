@@ -24,6 +24,9 @@ if ( $googlesitemapsINI->variable( 'Settings', 'NewsSitemap' ) == 'enabled' )
     xrowSitemapTools::siteaccessCallFunction( $siteAccessArray, 'xrowSitemapTools::createNewsSitemap' );
 }
 
-xrowSitemapTools::ping();
+if ($googlesitemapsINI->variable( 'Settings', 'Ping' ) == "true" )
+{
+	xrowSitemapTools::ping();
+}
 
 ?>
