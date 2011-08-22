@@ -329,7 +329,8 @@ class xrowSitemapTools
         $file = eZClusterFileHandler::instance( $filename );
         if ( $file->exists() )
         {
-            $mtime = $file->mtime();
+            #reduce 5 min because article might be published during the runtime of the cron
+            $mtime = $file->mtime() - 300;
             if ( $mtime > 0 )
             {
                 $params = array( 
