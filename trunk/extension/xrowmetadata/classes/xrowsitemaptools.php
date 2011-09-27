@@ -14,7 +14,7 @@ class xrowSitemapTools
 	public static function changeAccess( array $access )
 	{
 		/* Legacy 4.2 */
-		changeAccess( $access );
+		eZSiteAccess::change( $access );
 		unset( $GLOBALS['eZContentObjectDefaultLanguage'] );
         eZContentLanguage::expireCache();
         eZContentObject::clearCache();
@@ -299,6 +299,191 @@ class xrowSitemapTools
         {
             $cli->output( "\n" );
             $cli->output( "Sitemap $filename for siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " has been generated.\n" );
+        }
+    }
+    
+	public static function createMobileSitemap()
+    {
+        eZDebug::writeDebug( "Generating mobile sitemap ...", __METHOD__ );
+        $cli = $GLOBALS['cli'];
+        global $cli, $isQuiet;
+        if ( ! $isQuiet )
+        {
+            $cli->output( "Generating mobile sitemap for siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " \n" );
+        }
+        $ini = eZINI::instance( 'site.ini' );
+        $googlesitemapsINI = eZINI::instance( 'xrowsitemap.ini' );
+        // Get the Sitemap's root node
+        $contentINI = eZINI::instance( 'content.ini' );
+        $rootNode = eZContentObjectTreeNode::fetch( $contentINI->variable( 'NodeSettings', 'RootNode' ) );
+        
+        if ( ! $rootNode instanceof eZContentObjectTreeNode )
+        {
+            $cli->output( "Invalid RootNode for Siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " \n" );
+            continue;
+        }
+        
+        // Settings variables
+        if ( $googlesitemapsINI->hasVariable( 'MobileSitemapSettings', 'ClassFilterType' ) and $googlesitemapsINI->hasVariable( 'MobileSitemapSettings', 'ClassFilterArray' ) )
+        {
+            $params2 = array( 
+                'ClassFilterType' => $googlesitemapsINI->variable( 'MobileSitemapSettings', 'ClassFilterType' ) , 
+                'ClassFilterArray' => $googlesitemapsINI->variable( 'MobileSitemapSettings', 'ClassFilterArray' ) 
+            );
+        }
+        $max = 49997; // max. amount of links in 1 sitemap
+        $limit = 50;
+        
+        // Fetch the content tree
+        $params = array( 
+            'SortBy' => array( 
+                array( 
+                    'depth' , 
+                    true 
+                ) , 
+                array( 
+                    'published' , 
+                    true 
+                ) 
+            ) 
+        );
+        if ( isset( $params2 ) )
+        {
+            $params = array_merge( $params, $params2 );
+        }
+
+        $subtreeCount = eZContentObjectTreeNode::subTreeCountByNodeID( $params, $rootNode->NodeID );
+
+        if ( $subtreeCount == 1 )
+        {
+            $cli->output( "No Items found under node #" . $contentINI->variable( 'NodeSettings', 'RootNode' ) . "." );
+        }
+        
+        if ( ! $isQuiet )
+        {
+            $amount = $subtreeCount + 1; // +1 is root node
+            $cli->output( "Adding $amount nodes to the sitemap." );
+            $output = new ezcConsoleOutput();
+            $bar = new ezcConsoleProgressbar( $output, $amount );
+        }
+        
+        $addPrio = false;
+        if ( $googlesitemapsINI->hasVariable( 'MobileSitemapSettings', 'AddPriorityToSubtree' ) and $googlesitemapsINI->variable( 'MobileSitemapSettings', 'AddPriorityToSubtree' ) == 'true' )
+        {
+            $addPrio = true;
+        }
+        
+        $sitemap = new xrowMobileSitemap();
+        // Generate Sitemap
+        /** START Adding the root node **/
+        $object = $rootNode->object();
+        
+        $meta = xrowMetaDataFunctions::fetchByObject( $object );
+        $extensions = array();
+        $extensions[] = new xrowSitemapItemModified( $rootNode->attribute( 'modified_subnode' ) );
+        
+        $url = $rootNode->attribute( 'url_alias' );
+        eZURI::transformURI( $url );
+        $url = 'http://' . xrowSitemapTools::domain() . $url;
+                
+        if ( $meta and $meta->googlemap != '0' )
+        {
+            $extensions[] = new xrowSitemapItemFrequency( $meta->change );
+            $extensions[] = new xrowSitemapItemPriority( $meta->priority );
+            $sitemap->add( $url, $extensions );
+        }
+        elseif ( $meta === false and $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
+        {
+            if ( $addPrio )
+            {
+                $extensions[] = new xrowSitemapItemPriority( '1' );
+            }
+            
+            $sitemap->add( $url, $extensions );
+        }
+        
+        if ( isset( $bar ) )
+        {
+            $bar->advance();
+        }
+        /** END Adding the root node **/
+        $max = min( $max, $subtreeCount );
+        $params['Limit'] = min( $max, $limit );
+        $params['Offset'] = 0;
+        while ( $params['Offset'] < $max )
+        {
+            $nodeArray = eZContentObjectTreeNode::subTreeByNodeID( $params, $rootNode->NodeID );
+            foreach ( $nodeArray as $subTreeNode )
+            
+            {
+                eZContentLanguage::expireCache();
+                $object = $subTreeNode->object();
+                $meta = xrowMetaDataFunctions::fetchByObject( $object );
+                $extensions = array();
+                $extensions[] = new xrowSitemapItemModified( $subTreeNode->attribute( 'modified_subnode' ) );
+
+                $url = $subTreeNode->attribute( 'url_alias' );
+                eZURI::transformURI( $url );
+                $url = 'http://' . xrowSitemapTools::domain() . $url;
+                
+                if ( $meta and $meta->googlemap != '0' )
+                {
+                    $extensions[] = new xrowSitemapItemFrequency( $meta->change );
+                    $extensions[] = new xrowSitemapItemPriority( $meta->priority );
+                    $sitemap->add( $url, $extensions );
+                }
+                elseif ( $meta === false and $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
+                {
+                    
+                    if ( $addPrio )
+                    {
+                        $rootDepth = $rootNode->attribute( 'depth' );
+                        $prio = 1 - ( ( $subTreeNode->attribute( 'depth' ) - $rootDepth ) / 10 );
+                        if ( $prio > 0 )
+                        {
+                            $extensions[] = new xrowSitemapItemPriority( $prio );
+                        }
+                    }
+                    
+                    $sitemap->add( $url, $extensions );
+                
+                }
+                
+                if ( isset( $bar ) )
+                {
+                    $bar->advance();
+                }
+            }
+            eZContentObject::clearCache();
+            $params['Offset'] += $params['Limit'];
+        }
+        // write XML Sitemap to file
+        $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
+        if ( ! is_dir( $dir ) )
+        {
+            mkdir( $dir, 0777, true );
+        }
+        
+        $filename = $dir . '/' . xrowSitemap::BASENAME . '_mobile_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemap::SUFFIX;
+        
+        $sitemap->save( $filename );
+        
+        /**
+         * @TODO How will this work with cluster?
+    if ( function_exists( 'gzencode' ) and $googlesitemapsINI->variable( 'MobileSitemapSettings', 'Gzip' ) == 'enabled' )
+    {
+        $content = file_get_contents( $filename );
+        $content = gzencode( $content );
+        file_put_contents( $filename . '.gz', $content );
+        unlink( $filename );
+        $filename .= '.gz';
+    }
+         **/
+        
+        if ( ! $isQuiet )
+        {
+            $cli->output( "\n" );
+            $cli->output( "Mobile sitemap $filename for siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " has been generated.\n" );
         }
     }
 
