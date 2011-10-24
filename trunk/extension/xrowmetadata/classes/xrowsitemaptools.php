@@ -113,7 +113,7 @@ class xrowSitemapTools
             $cli->output( "Generating Sitemap for Siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " \n" );
         }
         $ini = eZINI::instance( 'site.ini' );
-        $googlesitemapsINI = eZINI::instance( 'xrowsitemap.ini' );
+        $xrowsitemapINI = eZINI::instance( 'xrowsitemap.ini' );
         // Get the Sitemap's root node
         $contentINI = eZINI::instance( 'content.ini' );
         $rootNode = eZContentObjectTreeNode::fetch( $contentINI->variable( 'NodeSettings', 'RootNode' ) );
@@ -125,11 +125,11 @@ class xrowSitemapTools
         }
         
         // Settings variables
-        if ( $googlesitemapsINI->hasVariable( 'SitemapSettings', 'ClassFilterType' ) and $googlesitemapsINI->hasVariable( 'SitemapSettings', 'ClassFilterArray' ) )
+        if ( $xrowsitemapINI->hasVariable( 'SitemapSettings', 'ClassFilterType' ) and $xrowsitemapINI->hasVariable( 'SitemapSettings', 'ClassFilterArray' ) )
         {
             $params2 = array( 
-                'ClassFilterType' => $googlesitemapsINI->variable( 'SitemapSettings', 'ClassFilterType' ) , 
-                'ClassFilterArray' => $googlesitemapsINI->variable( 'SitemapSettings', 'ClassFilterArray' ) 
+                'ClassFilterType' => $xrowsitemapINI->variable( 'SitemapSettings', 'ClassFilterType' ) , 
+                'ClassFilterArray' => $xrowsitemapINI->variable( 'SitemapSettings', 'ClassFilterArray' ) 
             );
         }
         $max = 49997; // max. amount of links in 1 sitemap
@@ -169,7 +169,7 @@ class xrowSitemapTools
         }
         
         $addPrio = false;
-        if ( $googlesitemapsINI->hasVariable( 'SitemapSettings', 'AddPriorityToSubtree' ) and $googlesitemapsINI->variable( 'SitemapSettings', 'AddPriorityToSubtree' ) == 'true' )
+        if ( $xrowsitemapINI->hasVariable( 'SitemapSettings', 'AddPriorityToSubtree' ) and $xrowsitemapINI->variable( 'SitemapSettings', 'AddPriorityToSubtree' ) == 'true' )
         {
             $addPrio = true;
         }
@@ -185,7 +185,7 @@ class xrowSitemapTools
         
         $url = $rootNode->attribute( 'url_alias' );
         eZURI::transformURI( $url, true );
-        if ( $ini->variable( 'SiteAccessSettings', 'RemoveSiteAccessIfDefaultAccess' ) == 'enabled' )
+        if ( $ini->variable( 'SiteAccessSettings', 'RemoveSiteAccessIfDefaultAccess' ) == 'enabled' OR  $xrowsitemapINI->variable( 'Settings', 'HideSiteaccessAlways' ) == 'true')
         {
             $url = 'http://' . xrowSitemapTools::domain() . $url;
         }
@@ -194,13 +194,13 @@ class xrowSitemapTools
             $url = 'http://' . xrowSitemapTools::domain() . '/' . $GLOBALS['eZCurrentAccess']['name'] . $url;
         }
         
-        if ( $meta and $meta->googlemap != '0' )
+        if ( $meta and $meta->sitemap_use != '0' )
         {
             $extensions[] = new xrowSitemapItemFrequency( $meta->change );
             $extensions[] = new xrowSitemapItemPriority( $meta->priority );
             $sitemap->add( $url, $extensions );
         }
-        elseif ( $meta === false and $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
+        elseif ( $meta === false and $xrowsitemapINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
         {
             if ( $addPrio )
             {
@@ -232,7 +232,7 @@ class xrowSitemapTools
 
                 $url = $subTreeNode->attribute( 'url_alias' );
                 eZURI::transformURI( $url, true );
-                if ( $ini->variable( 'SiteAccessSettings', 'RemoveSiteAccessIfDefaultAccess' ) == 'enabled' )
+                if ( $ini->variable( 'SiteAccessSettings', 'RemoveSiteAccessIfDefaultAccess' ) == 'enabled' OR  $xrowsitemapINI->variable( 'Settings', 'HideSiteaccessAlways' ) == 'true')
                 {
                     $url = 'http://' . xrowSitemapTools::domain() . $url;
                 }
@@ -241,13 +241,13 @@ class xrowSitemapTools
                     $url = 'http://' . xrowSitemapTools::domain() . '/' . $GLOBALS['eZCurrentAccess']['name'] . $url;
                 }
 
-                if ( $meta and $meta->googlemap != '0' )
+                if ( $meta and $meta->sitemap_use != '0' )
                 {
                     $extensions[] = new xrowSitemapItemFrequency( $meta->change );
                     $extensions[] = new xrowSitemapItemPriority( $meta->priority );
                     $sitemap->add( $url, $extensions );
                 }
-                elseif ( $meta === false and $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
+                elseif ( $meta === false and $xrowsitemapINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
                 {
                     
                     if ( $addPrio )
@@ -285,7 +285,7 @@ class xrowSitemapTools
         
         /**
          * @TODO How will this work with cluster?
-    if ( function_exists( 'gzencode' ) and $googlesitemapsINI->variable( 'SitemapSettings', 'Gzip' ) == 'enabled' )
+    if ( function_exists( 'gzencode' ) and $xrowsitemapINI->variable( 'SitemapSettings', 'Gzip' ) == 'enabled' )
     {
         $content = file_get_contents( $filename );
         $content = gzencode( $content );
@@ -312,7 +312,7 @@ class xrowSitemapTools
             $cli->output( "Generating mobile sitemap for siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " \n" );
         }
         $ini = eZINI::instance( 'site.ini' );
-        $googlesitemapsINI = eZINI::instance( 'xrowsitemap.ini' );
+        $xrowsitemapINI = eZINI::instance( 'xrowsitemap.ini' );
         // Get the Sitemap's root node
         $contentINI = eZINI::instance( 'content.ini' );
         $rootNode = eZContentObjectTreeNode::fetch( $contentINI->variable( 'NodeSettings', 'RootNode' ) );
@@ -324,11 +324,11 @@ class xrowSitemapTools
         }
         
         // Settings variables
-        if ( $googlesitemapsINI->hasVariable( 'MobileSitemapSettings', 'ClassFilterType' ) and $googlesitemapsINI->hasVariable( 'MobileSitemapSettings', 'ClassFilterArray' ) )
+        if ( $xrowsitemapINI->hasVariable( 'MobileSitemapSettings', 'ClassFilterType' ) and $xrowsitemapINI->hasVariable( 'MobileSitemapSettings', 'ClassFilterArray' ) )
         {
             $params2 = array( 
-                'ClassFilterType' => $googlesitemapsINI->variable( 'MobileSitemapSettings', 'ClassFilterType' ) , 
-                'ClassFilterArray' => $googlesitemapsINI->variable( 'MobileSitemapSettings', 'ClassFilterArray' ) 
+                'ClassFilterType' => $xrowsitemapINI->variable( 'MobileSitemapSettings', 'ClassFilterType' ) , 
+                'ClassFilterArray' => $xrowsitemapINI->variable( 'MobileSitemapSettings', 'ClassFilterArray' ) 
             );
         }
         $max = 49997; // max. amount of links in 1 sitemap
@@ -368,7 +368,7 @@ class xrowSitemapTools
         }
         
         $addPrio = false;
-        if ( $googlesitemapsINI->hasVariable( 'MobileSitemapSettings', 'AddPriorityToSubtree' ) and $googlesitemapsINI->variable( 'MobileSitemapSettings', 'AddPriorityToSubtree' ) == 'true' )
+        if ( $xrowsitemapINI->hasVariable( 'MobileSitemapSettings', 'AddPriorityToSubtree' ) and $xrowsitemapINI->variable( 'MobileSitemapSettings', 'AddPriorityToSubtree' ) == 'true' )
         {
             $addPrio = true;
         }
@@ -386,13 +386,13 @@ class xrowSitemapTools
         eZURI::transformURI( $url );
         $url = 'http://' . xrowSitemapTools::domain() . $url;
                 
-        if ( $meta and $meta->googlemap != '0' )
+        if ( $meta and $meta->sitemap_use != '0' )
         {
             $extensions[] = new xrowSitemapItemFrequency( $meta->change );
             $extensions[] = new xrowSitemapItemPriority( $meta->priority );
             $sitemap->add( $url, $extensions );
         }
-        elseif ( $meta === false and $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
+        elseif ( $meta === false and $xrowsitemapINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
         {
             if ( $addPrio )
             {
@@ -426,13 +426,13 @@ class xrowSitemapTools
                 eZURI::transformURI( $url );
                 $url = 'http://' . xrowSitemapTools::domain() . $url;
                 
-                if ( $meta and $meta->googlemap != '0' )
+                if ( $meta and $meta->sitemap_use != '0' )
                 {
                     $extensions[] = new xrowSitemapItemFrequency( $meta->change );
                     $extensions[] = new xrowSitemapItemPriority( $meta->priority );
                     $sitemap->add( $url, $extensions );
                 }
-                elseif ( $meta === false and $googlesitemapsINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
+                elseif ( $meta === false and $xrowsitemapINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
                 {
                     
                     if ( $addPrio )
@@ -470,7 +470,7 @@ class xrowSitemapTools
         
         /**
          * @TODO How will this work with cluster?
-    if ( function_exists( 'gzencode' ) and $googlesitemapsINI->variable( 'MobileSitemapSettings', 'Gzip' ) == 'enabled' )
+    if ( function_exists( 'gzencode' ) and $xrowsitemapINI->variable( 'MobileSitemapSettings', 'Gzip' ) == 'enabled' )
     {
         $content = file_get_contents( $filename );
         $content = gzencode( $content );
@@ -639,19 +639,18 @@ class xrowSitemapTools
                         case 'ezimage':
                             if ( $attribute->hasContent() )
                             {
-                                
                                 $imagedata = $attribute->content();
-                                $image = new xrowSitemapItemImage();				
-				if ( $ini->hasVariable( 'NewsSitemapSettings', 'ImageAlias' ) )
-                                {
-					$aliasdata = $imagedata->attribute( $ini->variable( 'NewsSitemapSettings', 'ImageAlias' ) );
-					$image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
-				}
-				else
-				{
-					$aliasdata = $imagedata->attribute( 'original' );
-					$image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
-				}
+                                $image = new xrowSitemapItemImage();
+                            	if ( $ini->hasVariable( 'NewsSitemapSettings', 'ImageAlias' ) )
+				                {
+									$aliasdata = $imagedata->attribute( $ini->variable( 'NewsSitemapSettings', 'ImageAlias' ) );
+									$image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
+								}
+								else
+								{
+									$aliasdata = $imagedata->attribute( 'original' );
+									$image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
+								}
                                 if ( $imagedata->attribute( 'alternative_text' ) )
                                 {
                                     	$image->caption = $imagedata->attribute( 'alternative_text' );

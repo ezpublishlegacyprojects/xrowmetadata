@@ -1,14 +1,22 @@
 ﻿Installation:
 
 After this the extension has been installed. You should be able to generate the sitemap 
-using the runcronjobs.php script. See "googlesitemaps.ini" for more configuration options.
+using the runcronjobs.php script. See "xrowsitemap.ini" for more configuration options.
 
-    # php runcronjobs.php googlesitemaps
-    Running cronjob part 'googlesitemaps'
-    Running extension/xrowmetadata/cronjobs/generate.php
-    Generating Sitemap...
-
-    Sitemap has been generated!
+    # php runcronjobs.php sitemap
+    Running cronjob part 'sitemap'
+	Running extension/xrowmetadata/cronjobs/sitemap.php at: 14.10.2011 12:31
+	Generating Regular Sitemaps...
+	
+	Generating Sitemap for Siteaccess XYZ 
+	
+	Adding 578 nodes to the sitemap.
+	578 / 578 [+++++++++++++++++++++++++++++++++++++++++++++++++++++++++>] 100,00%
+	
+	Sitemap var/storage/sitemap/XYZ/urlset_standard_XYZ.xml for siteaccess XYZ has been generated.
+	
+	Completing extension/xrowmetadata/cronjobs/sitemap.php at: 14.10.2011 12:31
+	Elapsed time: 00:00:08
 
 This will create a file for every siteaccess within your eZ Publish root directory. These files are usually named "sitemap_access.xml", but you can change that in the INI file.
 
@@ -24,7 +32,7 @@ Finally you need to attached the Metadatatype to some of your content classes an
         <title>{$meta.title|wash}</title>
     {/if}
     {if $meta.keywords}
-        <meta name="keywords" content="{$meta.keywords|wash}" />
+    	<meta name="keywords" content="{$meta.keywords|implode(',')|wash}" />
     {/if}
     {if $meta.description}
         <meta name="description" content="{$meta.description|wash}" />

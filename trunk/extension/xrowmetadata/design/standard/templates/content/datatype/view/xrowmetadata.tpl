@@ -5,9 +5,9 @@
 <tr><th class="table_no_border">{'Description'|i18n( 'design/standard/content/datatype' )}:</th><td class="table_no_border">{$attribute.content.description|wash()}</td></tr>
 <tr><th class="table_no_border">{'Keywords'|i18n( 'design/standard/content/datatype' )}:</th><td class="table_no_border">{$attribute.content.keywords|implode( ', ' )|wash()}</td></tr>
 
-<tr><th class="table_no_border">{'Googlemap'|i18n( 'design/standard/content/datatype' )}:</th><td class="table_no_border">{if eq($attribute.content.googlemap,'1')}enabled{else}disabled{/if}</td></tr>
-<tr><th class="table_no_border">{'Google Change'|i18n( 'design/standard/content/datatype' )}:</th><td class="table_no_border">{$attribute.content.change|wash()}</td></tr>
-<tr><th class="table_no_border">{'Google Priority'|i18n( 'design/standard/content/datatype' )}:</th><td class="table_no_border">{$attribute.content.priority|wash()}</td></tr>
+<tr><th class="table_no_border">{'Use in sitemap'|i18n( 'design/standard/content/datatype' )}:</th><td class="table_no_border">{if eq($attribute.content.sitemap_use,'1')}{'yes'|i18n( 'design/standard/class/datatype' )}{else}{'no'|i18n( 'design/standard/class/datatype' )}{/if}</td></tr>
+<tr><th class="table_no_border">{'Change frequence'|i18n( 'design/standard/content/datatype' )}:</th><td class="table_no_border">{$attribute.content.change|wash()|i18n( 'design/standard/class/datatype' )}</td></tr>
+<tr><th class="table_no_border">{'Priority'|i18n( 'design/standard/content/datatype' )}:</th><td class="table_no_border">{$attribute.content.priority|wash()}</td></tr>
 
 </table>
 {/if}

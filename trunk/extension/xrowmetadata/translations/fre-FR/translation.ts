@@ -3,6 +3,14 @@
 <TS version="2.0" language="de_DE" sourcelanguage="en">
 <context>
     <name>design/standard/class/datatype</name>
+     <message>
+        <source>yes</source>
+        <translation>oui</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>non</translation>
+    </message>
     <message>
         <source>Title</source>
         <translation>Titre</translation>
@@ -14,10 +22,6 @@
     <message>
         <source>Keywords</source>
         <translation>Mots clés</translation>
-    </message>
-    <message>
-        <source>Googlemap</source>
-        <translation>Googlemap</translation>
     </message>
     <message>
         <source>Change frequence</source>
@@ -71,16 +75,12 @@
         <translation>Mots clés</translation>
     </message>
     <message>
-        <source>Googlemap</source>
-        <translation>Googlemap</translation>
+        <source>Change frequence</source>
+        <translation>Changement de fréquence</translation>
     </message>
     <message>
-        <source>Google Change</source>
-        <translation>Google changement</translation>
-    </message>
-    <message>
-        <source>Google Priority</source>
-        <translation>Google priorités</translation>
+        <source>Priority</source>
+        <translation>Priorités</translation>
     </message>
 </context>
 <context>

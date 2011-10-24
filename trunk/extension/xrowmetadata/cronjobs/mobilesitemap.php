@@ -1,12 +1,12 @@
 <?php
 
 $ini = eZINI::instance( 'site.ini' );
-$googlesitemapsINI = eZINI::instance( 'xrowsitemap.ini' );
+$xrowsitemapINI = eZINI::instance( 'xrowsitemap.ini' );
 
 //getting custom set site access or default access
-if ( $googlesitemapsINI->hasVariable( 'MobileSitemapSettings', 'AvailableSiteAccessList' ) )
+if ( $xrowsitemapINI->hasVariable( 'MobileSitemapSettings', 'AvailableSiteAccessList' ) )
 {
-    $siteAccessArray = $googlesitemapsINI->variable( 'MobileSitemapSettings', 'AvailableSiteAccessList' );
+    $siteAccessArray = $xrowsitemapINI->variable( 'MobileSitemapSettings', 'AvailableSiteAccessList' );
 }
 else
 {
@@ -15,7 +15,7 @@ else
     );
 }
 
-if ( $googlesitemapsINI->variable( 'Settings', 'MobileSitemap' ) == 'enabled' )
+if ( $xrowsitemapINI->variable( 'Settings', 'MobileSitemap' ) == 'enabled' )
 {
     if ( ! $isQuiet )
     {

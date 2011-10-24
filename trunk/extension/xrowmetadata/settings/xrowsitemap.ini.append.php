@@ -3,6 +3,7 @@
 [Settings]
 # Pings Google, Bing for update.
 Ping=true
+HideSiteaccessAlways=false
 
 Sitemap=enabled
 NewsSitemap=enabled

@@ -7,9 +7,9 @@ class xrowMetaData extends ezcBaseStruct
     public $title;
     public $keywords = array();
     public $description;
-    public $googlemap;
+    public $sitemap_use;
 
-    public function __construct( $title = false, $keywords = array(), $description = false, $priority = false, $change = false, $googlemap = false )
+    public function __construct( $title = false, $keywords = array(), $description = false, $priority = false, $change = false, $sitemap_use = false )
     {
         $this->title = $title;
         $this->keywords = $keywords;
@@ -30,17 +30,17 @@ class xrowMetaData extends ezcBaseStruct
         {
             $this->change = $change;
         }
-        if ( $googlemap === false )
+        if ( $sitemap_use === false )
         {
-            $this->googlemap = '1';
+            $this->sitemap_use = '1';
         }
-        elseif ( empty( $googlemap ) )
+        elseif ( empty( $sitemap_use ) )
         {
-            $this->googlemap = '0';
+            $this->sitemap_use = '0';
         }
         else
         {
-            $this->googlemap = '1';
+            $this->sitemap_use = '1';
         }
     }
 

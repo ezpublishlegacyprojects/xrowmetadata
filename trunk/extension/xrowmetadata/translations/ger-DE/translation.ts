@@ -4,6 +4,14 @@
 <context>
     <name>design/standard/class/datatype</name>
     <message>
+        <source>yes</source>
+        <translation>ja</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>nein</translation>
+    </message>
+    <message>
         <source>Title</source>
         <translation>Titel (Meta Title)</translation>
     </message>
@@ -16,8 +24,8 @@
         <translation>Suchbegriffe (Meta Keywords)</translation>
     </message>
     <message>
-        <source>Googlemap</source>
-        <translation>Googlemap</translation>
+        <source>Use in sitemap</source>
+        <translation>In sitemap nutzen</translation>
     </message>
     <message>
         <source>Change frequence</source>
@@ -71,16 +79,16 @@
         <translation>Suchbegriffe (Meta Keywords)</translation>
     </message>
     <message>
-        <source>Googlemap</source>
-        <translation>Googlemap</translation>
+        <source>Use in sitemap</source>
+        <translation>In sitemap nutzen</translation>
     </message>
     <message>
-        <source>Google Change</source>
-        <translation>Google Änderungsrate</translation>
+        <source>Change frequence</source>
+        <translation>Änderungsrate</translation>
     </message>
     <message>
-        <source>Google Priority</source>
-        <translation>Google Priorität</translation>
+        <source>Priority</source>
+        <translation>Priorität</translation>
     </message>
 </context>
 <context>

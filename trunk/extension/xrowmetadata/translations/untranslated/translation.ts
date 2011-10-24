@@ -16,7 +16,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Googlemap</source>
+        <source>Use in sitemap</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -71,15 +71,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Googlemap</source>
+        <source>Use in sitemap</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Google Change</source>
+        <source>Change frequence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Google Priority</source>
+        <source>Priority</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

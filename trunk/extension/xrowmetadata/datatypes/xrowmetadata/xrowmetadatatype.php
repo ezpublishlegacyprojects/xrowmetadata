@@ -100,7 +100,7 @@ class xrowMetaDataType extends eZDataType
         $dom2->loadXML( $xml );
         $priority = $dom2->getElementsByTagName( "priority" )->item( 0 );
         $change = $dom2->getElementsByTagName( "change" )->item( 0 );
-        $googlemap = $dom2->getElementsByTagName( "googlemap" )->item( 0 );
+        $sitemap_usage = $dom2->getElementsByTagName( "sitemap_use" )->item( 0 );
         foreach ( $trans as $translation )
         {
             if ( $contentObjectAttribute->LanguageCode == $translation->LanguageCode )
@@ -113,7 +113,7 @@ class xrowMetaDataType extends eZDataType
 
             $dom->documentElement->replaceChild( $dom->importNode( $priority, true ), $dom->getElementsByTagName( "priority" )->item( 0 ) );
             $dom->documentElement->replaceChild( $dom->importNode( $change, true ), $dom->getElementsByTagName( "change" )->item( 0 ) );
-            $dom->documentElement->replaceChild( $dom->importNode( $googlemap, true ), $dom->getElementsByTagName( "googlemap" )->item( 0 ) );
+            $dom->documentElement->replaceChild( $dom->importNode( $sitemap_usage, true ), $dom->getElementsByTagName( "sitemap_use" )->item( 0 ) );
 
             $translation->setAttribute( "data_text", $dom->saveXML() );
             eZPersistentObject::storeObject( $translation );
@@ -130,23 +130,8 @@ class xrowMetaDataType extends eZDataType
     		eZPersistentObject::storeObject( $attribute );
     	}
 
-        $meta= $attribute->content();
-        $xml = new DOMDocument( "1.0", "UTF-8" );
-        $xmldom = $xml->createElement( "MetaData" );
-        $node = $xml->createElement( "title", htmlspecialchars( $meta->title, ENT_QUOTES, 'UTF-8' ) );
-        $xmldom->appendChild( $node );
-        $node = $xml->createElement( "keywords", htmlspecialchars( implode(',', $meta->keywords) , ENT_QUOTES, 'UTF-8' ) );
-        $xmldom->appendChild( $node );
-        $node = $xml->createElement( "description", htmlspecialchars( $meta->description, ENT_QUOTES, 'UTF-8' ) );
-        $xmldom->appendChild( $node );
-        $node = $xml->createElement( "priority", htmlspecialchars( $meta->priority, ENT_QUOTES, 'UTF-8' ) );
-        $xmldom->appendChild( $node );
-        $node = $xml->createElement( "change", htmlspecialchars( $meta->change, ENT_QUOTES, 'UTF-8' ) );
-        $xmldom->appendChild( $node );
-        $node = $xml->createElement( "googlemap", htmlspecialchars( $meta->googlemap, ENT_QUOTES, 'UTF-8' ) );
-        $xmldom->appendChild( $node );
-        $xml->appendChild( $xmldom );
-        $attribute->setAttribute( 'data_text', $xml->saveXML() );
+    	$xmlString = self::saveXML( $attribute->content() );
+        $attribute->setAttribute( 'data_text', $xmlString );
 
         // save keywords
         $keyword = new eZKeyword();
@@ -240,7 +225,7 @@ class xrowMetaDataType extends eZDataType
                                      htmlspecialchars_decode( (string)$xml->description, ENT_QUOTES ),
                                      htmlspecialchars_decode( (string)$xml->priority, ENT_QUOTES ),
                                      htmlspecialchars_decode( (string)$xml->change, ENT_QUOTES ),
-                                     htmlspecialchars_decode( (string)$xml->googlemap , ENT_QUOTES ) );
+                                     htmlspecialchars_decode( (string)$xml->sitemap_use , ENT_QUOTES ) );
            return $meta;
         }
         catch ( Exception $e )
@@ -255,7 +240,7 @@ class xrowMetaDataType extends eZDataType
      */
     function fillMetaData( $array )
     {
-        return new xrowMetaData( $array['title'], $array['keywords'], $array['description'], $array['priority'], $array['change'], $array['googlemap'] );
+        return new xrowMetaData( $array['title'], $array['keywords'], $array['description'], $array['priority'], $array['change'], $array['sitemap_use'] );
     }
     /*!
      Returns the content.
@@ -331,6 +316,27 @@ class xrowMetaDataType extends eZDataType
         return true;
     }
 
+	function saveXML( $meta )
+	{
+    	$xml = new DOMDocument( "1.0", "UTF-8" );
+        $xmldom = $xml->createElement( "MetaData" );
+        $node = $xml->createElement( "title", htmlspecialchars( $meta->title, ENT_QUOTES, 'UTF-8' ) );
+        $xmldom->appendChild( $node );
+        $node = $xml->createElement( "keywords", htmlspecialchars( implode(',', $meta->keywords) , ENT_QUOTES, 'UTF-8' ) );
+        $xmldom->appendChild( $node );
+        $node = $xml->createElement( "description", htmlspecialchars( $meta->description, ENT_QUOTES, 'UTF-8' ) );
+        $xmldom->appendChild( $node );
+        $node = $xml->createElement( "priority", htmlspecialchars( $meta->priority, ENT_QUOTES, 'UTF-8' ) );
+        $xmldom->appendChild( $node );
+        $node = $xml->createElement( "change", htmlspecialchars( $meta->change, ENT_QUOTES, 'UTF-8' ) );
+        $xmldom->appendChild( $node );
+        $node = $xml->createElement( "sitemap_use", htmlspecialchars( $meta->sitemap_use, ENT_QUOTES, 'UTF-8' ) );
+        $xmldom->appendChild( $node );
+        $xml->appendChild( $xmldom );
+       
+        return $xml->saveXML();
+	}
+    
     /*!
      \reimp
      \param package
@@ -338,40 +344,32 @@ class xrowMetaDataType extends eZDataType
 
      \return a DOM representation of the content object attribute
     */
-    function serializeContentObjectAttribute( $package, $objectAttribute )
-    {
-        /*
-         * @TODO do it later
-        $node = $this->createContentObjectAttributeDOMNode( $objectAttribute );
+	function serializeContentObjectAttribute( $package, $objectAttribute )
+	{
+		$xmlString = self::saveXML( $objectAttribute->content() );
+	    $DOMNode = $this->createContentObjectAttributeDOMNode( $objectAttribute );
+	
+	    if ( $xmlString != '' )
+	    {
+	    	$doc = new DOMDocument( '1.0', 'utf-8' );
+	    	$success = $doc->loadXML( $xmlString );
+	        $importedRootNode = $DOMNode->ownerDocument->importNode( $doc->documentElement, true );
+	        $DOMNode->appendChild( $importedRootNode );
+	     }
+	    return $DOMNode;
+	}
 
-        $keyword = new xrowMetaData( );
-        $keyword->fetch( $objectAttribute );
-        $keyWordString = $keyword->keywordString();
-        $dom = $node->ownerDocument;
-        $keywordStringNode = $dom->createElement( 'keyword-string', $keyWordString );
-        $node->appendChild( $keywordStringNode );
-
-        return $node;
-        */
-    }
-
-    /*!
-     \reimp
-     Unserailize contentobject attribute
-
-     \param package
-     \param contentobject attribute object
-     \param domnode object
-    */
     function unserializeContentObjectAttribute( $package, $objectAttribute, $attributeNode )
     {
-               /*
-         * @TODO do it later
-        $keyWordString = $attributeNode->getElementsByTagName( 'keyword-string' )->item( 0 )->textContent;
-        $keyword = new xrowMetaData( );
-        $keyword->initializeKeyword( $keyWordString );
-        $objectAttribute->setContent( $keyword );
-        */
+	    foreach ( $attributeNode->childNodes as $childNode )
+        {
+            if ( $childNode->nodeType == XML_ELEMENT_NODE )
+            {
+                $xmlString = $childNode->ownerDocument->saveXML( $childNode );
+                $objectAttribute->setAttribute( 'data_text', $xmlString );
+                break;
+            }
+        }
     }
 }
 

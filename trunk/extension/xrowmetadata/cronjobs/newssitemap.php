@@ -1,12 +1,12 @@
 <?php
 
 $ini = eZINI::instance( 'site.ini' );
-$googlesitemapsINI = eZINI::instance( 'xrowsitemap.ini' );
+$xrowsitemapINI = eZINI::instance( 'xrowsitemap.ini' );
 
 //getting custom set site access or default access
-if ( $googlesitemapsINI->hasVariable( 'SitemapSettings', 'AvailableSiteAccessList' ) )
+if ( $xrowsitemapINI->hasVariable( 'SitemapSettings', 'AvailableSiteAccessList' ) )
 {
-    $siteAccessArray = $googlesitemapsINI->variable( 'SitemapSettings', 'AvailableSiteAccessList' );
+    $siteAccessArray = $xrowsitemapINI->variable( 'SitemapSettings', 'AvailableSiteAccessList' );
 }
 else
 {
@@ -15,7 +15,7 @@ else
     );
 }
 
-if ( $googlesitemapsINI->variable( 'Settings', 'NewsSitemap' ) == 'enabled' )
+if ( $xrowsitemapINI->variable( 'Settings', 'NewsSitemap' ) == 'enabled' )
 {
     if ( ! $isQuiet )
     {
@@ -24,7 +24,7 @@ if ( $googlesitemapsINI->variable( 'Settings', 'NewsSitemap' ) == 'enabled' )
     xrowSitemapTools::siteaccessCallFunction( $siteAccessArray, 'xrowSitemapTools::createNewsSitemap' );
 }
 
-if ($googlesitemapsINI->variable( 'Settings', 'Ping' ) == "true" )
+if ($xrowsitemapINI->variable( 'Settings', 'Ping' ) == "true" )
 {
 	xrowSitemapTools::ping();
 }
