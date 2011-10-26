@@ -108,12 +108,17 @@ AddPriorityToSubtree=true
 #AddFrequencyArray[]
 #AddPriorityArray[0]=always
 
+# if you would like to exclude some nodes and their children
+#ExcludeNodes[]
+#ExcludeNodes[]=70162
 
 
 [NewsSitemapSettings]
 # Name of the publication
 #Name=Test
-# Addtional Keywords
+# if RootNode is other as in content.ini
+#RootNode=12345
+# Addtional Keywords 
 #AdditionalKeywordList[]=Music
 #AdditionalKeywordList[]=xrow GmbH
 #Image Alias used for image items
@@ -121,4 +126,23 @@ AddPriorityToSubtree=true
 # setting array to include classes in sitemap
 #ClassFilterArray[]
 #ClassFilterArray[]=article
+# if you do not want to use genre: <news:genres>PressRelease, Blog, ...</news:genres>
+#UseGenres=disable
+# if a class should have another genre as PressRelease like the class blog. PressRelease is default.
+#Genres[]
+#Genres[blog]=Blog
+# if you would like to get all objects without limitation for generate xml element <news:access>Subscription</news:access> set it disable
+# after fetch all objects the script will check if anonymus has access to read this object and 
+# set <news:access>Subscription</news:access> if not and nothing if anonymus can read this article
+#Limitation=enable
+# if you would like to use more AttributeFilter define here the name of the following AttributeFilter block
+#ExtraAttributeFilter[]
+#ExtraAttributeFilter[]=ExtraAttributeFilter_1
+
+# AttributeFilter block
+#[ExtraAttributeFilter_1]
+#Value[]
+#Value[]=state
+#Value[]==
+#Value[]=3
 */?>

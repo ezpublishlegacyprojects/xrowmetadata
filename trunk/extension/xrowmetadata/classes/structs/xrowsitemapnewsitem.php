@@ -20,9 +20,12 @@ class xrowSitemapItemNews extends xrowSitemapItem
             'name' => eZINI::instance( 'xrowsitemap.ini' )->variable( 'NewsSitemapSettings', 'Name' ) , 
             'language' => xrowSitemapTools::language() 
         );
-        $this->genres = array( 
-            'PressRelease' 
-        );
+		if( !eZINI::instance( 'xrowsitemap.ini' )->hasVariable( 'NewsSitemapSettings', 'UseGenres' ) || ( eZINI::instance( 'xrowsitemap.ini' )->hasVariable( 'NewsSitemapSettings', 'UseGenres' ) && eZINI::instance( 'xrowsitemap.ini' )->variable( 'NewsSitemapSettings', 'UseGenres' ) != 'disable' ) )
+        {
+			$this->genres = array( 
+				'PressRelease' 
+			);
+		}
     }
 
     /**
