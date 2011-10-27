@@ -157,15 +157,7 @@ class xrowSitemapTools
         {
             $cli->output( "No Items found under node #" . $contentINI->variable( 'NodeSettings', 'RootNode' ) . "." );
         }
-        
-        if ( ! $isQuiet )
-        {
-            $amount = $subtreeCount + 1; // +1 is root node
-            $cli->output( "Adding $amount nodes to the sitemap." );
-            $output = new ezcConsoleOutput();
-            $bar = new ezcConsoleProgressbar( $output, $amount );
-        }
-        
+
         $addPrio = false;
         if ( $xrowsitemapINI->hasVariable( 'MobileSitemapSettings', 'AddPriorityToSubtree' ) and $xrowsitemapINI->variable( 'MobileSitemapSettings', 'AddPriorityToSubtree' ) == 'true' )
         {
@@ -573,7 +565,8 @@ class xrowSitemapTools
         $file = eZClusterFileHandler::instance( $filename );
         if ( $file->exists() )
         {
-            $mtime = $file->mtime();
+            #reduce 5 min because article might be published during the runtime of the cron
+			$mtime = $file->mtime() - 300;
             if ( $mtime > 0 )
             {
                 $params = array( 

@@ -21,12 +21,15 @@ class eZClusterDirectoryIterator implements Iterator
         }
         elseif ( $handler instanceof eZDFSFileHandler )
         {
-        	$db = eZDB::instance();
-        	$dir = $db->arrayQuery( "SELECT name from ezdfsfile WHERE scope = 'sitemap' AND expired = 0 AND name like '" . $db->escapeString( $dirname ) . "/%'" );
-            foreach ( $dir as $file )
-            {               
-                $this->array[] = eZClusterFileHandler::instance( $file['name'] );
-            }
+        	$sitemaplist = $handler->getFileList(array("sitemap"));
+        	foreach ( $sitemaplist as $sitemap )
+        	{
+        		$so = eZClusterFileHandler::instance( $sitemap );
+        		if( strpos($so->name(), $dirname ) == 0 and !$so->isExpired())
+        		{
+        			$this->array[] = $so;
+        		}
+        	}
         }
         $this->position = 0;
     }
