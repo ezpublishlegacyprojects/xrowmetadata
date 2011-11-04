@@ -130,7 +130,8 @@ class xrowMetaDataType extends eZDataType
     		eZPersistentObject::storeObject( $attribute );
     	}
 
-    	$xmlString = self::saveXML( $attribute->content() );
+		$meta = $attribute->content();
+    	$xmlString = self::saveXML( $meta );
         $attribute->setAttribute( 'data_text', $xmlString );
 
         // save keywords
