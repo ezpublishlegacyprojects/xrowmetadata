@@ -745,34 +745,27 @@ class xrowSitemapTools
 	                    switch ( $attribute->DataTypeString )
 	                    {
 	                        case 'ezimage':
-	                            if ( $attribute->hasContent() )
-	                            {
-	                                $image_ini = eZINI::instance( 'aschendorff_design_wn.ini' );
-					                $noWatermark = $image_ini->variable( 'ImageSettings', 'NoWatermark' );
-	                                $imagedata = $attribute->content();
-	                                $image = new xrowSitemapItemImage();
-	                            	if ( in_array($dm["source"]->content(), $noWatermark) )
-					                {
-										$aliasdata = $imagedata->attribute( "image_630_420f_wn" );
-										$image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
-									}		
-									elseif ( $ini->hasVariable( 'NewsSitemapSettings', 'ImageAlias' ) )
-	                                {
-	                                    $aliasdata = $imagedata->attribute( $ini->variable( 'NewsSitemapSettings', 'ImageAlias' ) );
-	                                    $image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
-	                                }
-	                                else
-	                                {
-	                                    $aliasdata = $imagedata->attribute( 'original' );
-	                                    $image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
-	                                }
-	                                if ( $imagedata->attribute( 'alternative_text' ) )
-	                                {
-	                                    	$image->caption = $imagedata->attribute( 'alternative_text' );
-	                                }
-	                                $images[] = $image;
-	                            }
-	                            break;
+                            if ( $attribute->hasContent() )
+                            {
+                                $imagedata = $attribute->content();
+                                $image = new xrowSitemapItemImage();
+                                if ( $ini->hasVariable( 'NewsSitemapSettings', 'ImageAlias' ) )
+                                {
+                                    $aliasdata = $imagedata->attribute( $ini->variable( 'NewsSitemapSettings', 'ImageAlias' ) );
+                                    $image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
+                                }
+                                else
+                                {
+                                    $aliasdata = $imagedata->attribute( 'original' );
+                                    $image->url = 'http://' . self::domain() . '/' . $aliasdata['url'];
+                                }
+                                if ( $imagedata->attribute( 'alternative_text' ) )
+                                {
+                                    $image->caption = $imagedata->attribute( 'alternative_text' );
+                                }
+                                $images[] = $image;
+                            }
+                            break;
 	                        case 'xrowmetadata':
 	                            if ( $attribute->hasContent() )
 	                            {
