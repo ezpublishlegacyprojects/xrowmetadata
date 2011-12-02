@@ -15,6 +15,13 @@ class xrowSitemapItemPriority extends xrowSitemapItem
     
     }
 
+    function DOMElement( xrowSitemapList $sitemap )
+    {
+        $priority = $sitemap->dom->createElement( 'priority' );
+        $priority->appendChild( $sitemap->dom->createTextNode( $this->priority ) );
+        return $priority;
+    }
+
     /**
      * @return xrowSitemapItemModified
      */

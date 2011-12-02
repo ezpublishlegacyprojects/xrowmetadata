@@ -15,6 +15,13 @@ class xrowSitemapItemFrequency extends xrowSitemapItem
     
     }
 
+    function DOMElement( xrowSitemapList $sitemap )
+    {
+        $changefreq = $sitemap->dom->createElement( 'changefreq' );
+        $changefreq->appendChild( $sitemap->dom->createTextNode( $this->frequency ) );
+        return $changefreq;
+    }
+
     /**
      * @return xrowSitemapItemModified
      */

@@ -5,20 +5,20 @@ class xrowMobileSitemap extends xrowSitemapList
     const BASENAME = 'urlset';
     const SUFFIX = 'xml';
     const ITEMNAME = 'url';
-    
-	function __construct()
+
+    function __construct()
     {
         // Create the DOMnode
         $this->dom = new DOMDocument( "1.0", "UTF-8" );
         $this->dom->formatOutput = true;
         // Create DOM-Root (urlset)
-        $this->root = $this->dom->createElement( constant(get_class($this).'::BASENAME') );
+        $this->root = $this->dom->createElement( constant( get_class( $this ) . '::BASENAME' ) );
         $this->root->setAttribute( "xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9" );
         $this->root->setAttribute( "xmlns:mobile", "http://www.google.com/schemas/sitemap-mobile/1.0" );
         $this->dom->appendChild( $this->root );
     }
-    
-	/**
+
+    /**
      * Add a new child to the mobile sitemap
      *
      * @param string $url
@@ -34,7 +34,7 @@ class xrowMobileSitemap extends xrowSitemapList
             return;
         }
         
-        $node = $this->dom->createElement( constant(get_class($this).'::ITEMNAME') );
+        $node = $this->dom->createElement( constant( get_class( $this ) . '::ITEMNAME' ) );
         $subNode = $this->dom->createElement( 'loc' );
         $subNode->appendChild( $this->dom->createTextNode( $url ) );
         $node->appendChild( $subNode );

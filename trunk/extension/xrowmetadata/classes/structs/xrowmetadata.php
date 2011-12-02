@@ -16,7 +16,7 @@ class xrowMetaData extends ezcBaseStruct
         $this->description = $description;
         if ( empty( $priority ) )
         {
-            $this->priority = '0.5';
+            $this->priority = null;
         }
         else
         {

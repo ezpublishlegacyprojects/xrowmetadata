@@ -1,9 +1,11 @@
 <?php
 
-class xrowSitemapItem extends ezcBaseStruct
+abstract class xrowSitemapItem extends ezcBaseStruct
 {
 
-    function hasattribute( $name )
+    abstract public function DOMElement( xrowSitemapList $sitemap );
+
+    public function hasattribute( $name )
     {
         $classname = get_class( $this );
         $vars = get_class_vars( $classname );
@@ -13,7 +15,7 @@ class xrowSitemapItem extends ezcBaseStruct
             return false;
     }
 
-    function attribute( $name )
+    public function attribute( $name )
     {
         return $this->$name;
     }

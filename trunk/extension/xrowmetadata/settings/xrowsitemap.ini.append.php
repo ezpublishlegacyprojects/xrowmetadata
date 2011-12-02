@@ -2,8 +2,23 @@
 
 [Settings]
 # Pings Google, Bing for update.
-Ping=true
-HideSiteaccessAlways=false
+#Ping=true
+
+# Amount of items fetched per loop
+#LimitPerLoop=200
+
+# Plugin interface for Converters o type xrowSitemapConverter
+# VideoConverter=xrowSitemapConverter
+# NewsConverter=xrowSitemapConverter
+# ImageConverter=xrowSitemapConverter
+
+# If there is a node which doesn't have xrowmetadata data the priority
+# can be set by depth of the node
+# root node priority = 1
+# depth 2 means 0.9, depth 3 0.8 and so on.
+#AddPriorityToSubtree=true
+
+#HideSiteaccessAlways=false
 
 Sitemap=enabled
 NewsSitemap=enabled
@@ -30,11 +45,11 @@ MobileSitemap=disabled
 #ClassFilterArray[]=forum
 #ClassFilterArray[]=...
 
-# If there is a node which doesn't have xrowmetadata data the priority
-# can be set by depth of the node
-# root node priority = 1
-# depth 2 meeans 0.9, depth 3 0.8 and so on.
-AddPriorityToSubtree=true
+#ImageAlias=original
+#GalleryClasses[]
+#GalleryClasses[]=gallery
+#GalleryImageClasses[]=image
+#VideoClasses[]=video
 
 # Use gzip to compress the sitemap
 # Deprecated
@@ -81,8 +96,8 @@ AddPriorityToSubtree=true
 # If there is a node which doesn't have xrowmetadata data the priority
 # can be set by depth of the node
 # root node priority = 1
-# depth 2 meeans 0.9, depth 3 0.8 and so on.
-AddPriorityToSubtree=true
+# depth 2 means 0.9, depth 3 0.8 and so on.
+#AddPriorityToSubtree=true
 
 # Use gzip to compress the sitemap
 # Deprecated

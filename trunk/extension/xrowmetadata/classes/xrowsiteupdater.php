@@ -31,7 +31,7 @@ class xrowSiteUpdater
                 
                 $datamap = $object->dataMap();
                 $content = $datamap[$from_identifier]->content();
-                if ( isset( $content->KeywordArray ) and count( $content->KeywordArray ) > 0 and isset( $datamap[$to_identifier] ))
+                if ( isset( $content->KeywordArray ) and count( $content->KeywordArray ) > 0 and isset( $datamap[$to_identifier] ) )
                 {
                     
                     $meta = new xrowMetaData( false, $content->KeywordArray );
@@ -149,8 +149,8 @@ class xrowSiteUpdater
             
             if ( $attrContent )
                 $newAttribute->setContent( $attrContent );
-                
-            // store attribute, update placement, etc...
+            
+     // store attribute, update placement, etc...
             $attributes = $class->fetchAttributes();
             $attributes[] = $newAttribute;
             

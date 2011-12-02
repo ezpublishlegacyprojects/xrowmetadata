@@ -327,7 +327,14 @@ class xrowMetaDataType extends eZDataType
         $xmldom->appendChild( $node );
         $node = $xml->createElement( "description", htmlspecialchars( $meta->description, ENT_QUOTES, 'UTF-8' ) );
         $xmldom->appendChild( $node );
-        $node = $xml->createElement( "priority", htmlspecialchars( $meta->priority, ENT_QUOTES, 'UTF-8' ) );
+        if (!empty( $meta->priority ) )
+        {
+        	$node = $xml->createElement( "priority", htmlspecialchars( $meta->priority, ENT_QUOTES, 'UTF-8' ) );
+        }
+        else
+        {
+        	$node = $xml->createElement( "priority" );
+        }
         $xmldom->appendChild( $node );
         $node = $xml->createElement( "change", htmlspecialchars( $meta->change, ENT_QUOTES, 'UTF-8' ) );
         $xmldom->appendChild( $node );

@@ -3,12 +3,12 @@
 class eZClusterDirectoryIterator implements Iterator
 {
 
-    function __construct( $dirname, $scope )
+    function __construct( $dirname, $scope = null )
     {
         $handler = eZClusterFileHandler::instance();
         if ( $handler instanceof eZFSFileHandler )
         {
-        	$dir = new DirectoryIterator( $dirname );
+            $dir = new DirectoryIterator( $dirname );
             foreach ( $dir as $file )
             {
                 if ( $file->isDot() and $file->isDir() )
@@ -21,15 +21,17 @@ class eZClusterDirectoryIterator implements Iterator
         }
         elseif ( $handler instanceof eZDFSFileHandler )
         {
-        	$sitemaplist = $handler->getFileList(array("sitemap"));
-        	foreach ( $sitemaplist as $sitemap )
-        	{
-        		$so = eZClusterFileHandler::instance( $sitemap );
-        		if( strpos($so->name(), $dirname ) == 0 and !$so->isExpired())
-        		{
-        			$this->array[] = $so;
-        		}
-        	}
+            $sitemaplist = $handler->getFileList( array( 
+                "sitemap" 
+            ) );
+            foreach ( $sitemaplist as $sitemap )
+            {
+                $so = eZClusterFileHandler::instance( $sitemap );
+                if ( strpos( $so->name(), $dirname ) == 0 and ! $so->isExpired() )
+                {
+                    $this->array[] = $so;
+                }
+            }
         }
         $this->position = 0;
     }

@@ -64,6 +64,7 @@
 		<div class="element">
 			<label>{'Priority'|i18n( 'design/standard/class/datatype' )}:</label>
 			<select id="ezcoa-{if ne( $attribute_base, 'ContentObjectAttribute' )}{$attribute_base}-{/if}{$attribute.contentclassattribute_id}_{$attribute.contentclass_attribute_identifier}_keywords" class="ezcc-{$attribute.object.content_class.identifier} ezcca-{$attribute.object.content_class.identifier}_{$attribute.contentclass_attribute_identifier}" name="{$attribute_base}_xrowmetadata_data_array_{$attribute.id}[priority]" size="1">
+				<option value="" {if eq($attribute.content.priority,'')}selected{/if}>{'automatic'|i18n( 'design/standard/class/datatype' )}</option>
 				<option value="0.0" {if eq($attribute.content.priority,'0.0')}selected{/if}>0.0</option>
 				<option value="0.1" {if eq($attribute.content.priority,'0.1')}selected{/if}>0.1</option>
 				<option value="0.2" {if eq($attribute.content.priority,'0.2')}selected{/if}>0.2</option>

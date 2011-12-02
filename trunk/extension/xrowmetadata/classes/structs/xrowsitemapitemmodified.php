@@ -18,6 +18,11 @@ class xrowSitemapItemModified extends xrowSitemapItem
         }
     }
 
+    function DOMElement( xrowSitemapList $sitemap )
+    {
+        return $sitemap->dom->createElement( 'lastmod', $this->date->format( DateTime::W3C ) );
+    }
+
     /**
      * @return xrowSitemapItemModified
      */
