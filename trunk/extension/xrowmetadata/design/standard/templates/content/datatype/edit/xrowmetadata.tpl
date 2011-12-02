@@ -35,19 +35,19 @@
 <div class="block">
 
 	<div class="element"> 
-		<label>{'Use in sitemap'|i18n( 'design/standard/class/datatype' )}:</label>
-		<select id="ezcoa-{if ne( $attribute_base, 'ContentObjectAttribute' )}{$attribute_base}-{/if}{$attribute.contentclassattribute_id}_{$attribute.contentclass_attribute_identifier}_keywords" class="ezcc-{$attribute.object.content_class.identifier} ezcca-{$attribute.object.content_class.identifier}_{$attribute.contentclass_attribute_identifier}" name="{$attribute_base}_xrowmetadata_data_array_{$attribute.id}[sitemap_use]" size="1">
-		<option value="0" {if ne($attribute.content.sitemap_use,'1')}selected{/if}>{'no'|i18n( 'design/standard/class/datatype' )}</option>
-		<option value="1" {if eq($attribute.content.sitemap_use,'1')}selected{/if}>{'yes'|i18n( 'design/standard/class/datatype' )}</option>
-		</select>
-	</div>
-
-	<div class="element"> 
-		<label>{'more options'|i18n( 'design/standard/class/datatype' )}:</label>
-		<input id="more_checkbox" type="checkbox" {if or(ne($attribute.content.change,'daily'),ne($attribute.content.priority,'0.5'))}checked="checked"{/if} />
+		<label><input id="more_checkbox" type="checkbox" {if or(ne($attribute.content.change,'daily'),ne($attribute.content.priority,'0.5'))}checked="checked"{/if} /> {'More options'|i18n( 'design/standard/class/datatype' )}</label>
 	</div>
 
 	<div id="options_div" {if and(eq($attribute.content.change,'daily'),eq($attribute.content.priority,'0.5'))}class="hide"{/if}>
+		
+		<div class="element"> 
+			<label>{'Use in sitemap'|i18n( 'design/standard/class/datatype' )}:</label>
+			<select id="ezcoa-{if ne( $attribute_base, 'ContentObjectAttribute' )}{$attribute_base}-{/if}{$attribute.contentclassattribute_id}_{$attribute.contentclass_attribute_identifier}_keywords" class="ezcc-{$attribute.object.content_class.identifier} ezcca-{$attribute.object.content_class.identifier}_{$attribute.contentclass_attribute_identifier}" name="{$attribute_base}_xrowmetadata_data_array_{$attribute.id}[sitemap_use]" size="1">
+			<option value="0" {if ne($attribute.content.sitemap_use,'1')}selected{/if}>{'no'|i18n( 'design/standard/class/datatype' )}</option>
+			<option value="1" {if eq($attribute.content.sitemap_use,'1')}selected{/if}>{'yes'|i18n( 'design/standard/class/datatype' )}</option>
+			</select>
+		</div>
+		
 		<div class="element">
 			<label>{'Change frequence'|i18n( 'design/standard/class/datatype' )}:</label>
 			<select id="ezcoa-{if ne( $attribute_base, 'ContentObjectAttribute' )}{$attribute_base}-{/if}{$attribute.contentclassattribute_id}_{$attribute.contentclass_attribute_identifier}_keywords" class="ezcc-{$attribute.object.content_class.identifier} ezcca-{$attribute.object.content_class.identifier}_{$attribute.contentclass_attribute_identifier}" name="{$attribute_base}_xrowmetadata_data_array_{$attribute.id}[change]" size="1">

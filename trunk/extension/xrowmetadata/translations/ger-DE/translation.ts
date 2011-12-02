@@ -20,12 +20,16 @@
         <translation>Beschreibung (Meta Description)</translation>
     </message>
     <message>
+        <source>More options</source>
+        <translation>Weitere Optionen</translation>
+    </message>
+    <message>
         <source>Keywords</source>
         <translation>Suchbegriffe (Meta Keywords)</translation>
     </message>
     <message>
         <source>Use in sitemap</source>
-        <translation>In sitemap nutzen</translation>
+        <translation>In Sitemap nutzen</translation>
     </message>
     <message>
         <source>Change frequence</source>
@@ -63,6 +67,10 @@
         <source>Priority</source>
         <translation>Priorität</translation>
     </message>
+    <message>
+        <source>automatic</source>
+        <translation>automatisch</translation>
+    </message>
 </context>
 <context>
     <name>design/standard/content/datatype</name>
@@ -80,7 +88,7 @@
     </message>
     <message>
         <source>Use in sitemap</source>
-        <translation>In sitemap nutzen</translation>
+        <translation>In Sitemap nutzen</translation>
     </message>
     <message>
         <source>Change frequence</source>
