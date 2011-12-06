@@ -6,6 +6,7 @@ class xrowSitemapItemVideo extends xrowSitemapItem
     public $title;
     public $description;
     public $content_loc;
+    public $player_loc;
     public $duration;
     public $expiration_date;
     public $rating;

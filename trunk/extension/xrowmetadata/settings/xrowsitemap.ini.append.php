@@ -48,7 +48,7 @@ MobileSitemap=disabled
 #ImageAlias=original
 #GalleryClasses[]
 #GalleryClasses[]=gallery
-#GalleryImageClasses[]=image
+#ImageClasses[]=image
 #VideoClasses[]=video
 
 # Use gzip to compress the sitemap

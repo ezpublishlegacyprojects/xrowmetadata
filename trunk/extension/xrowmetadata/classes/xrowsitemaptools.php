@@ -6,7 +6,7 @@ require_once "access.php";
 class xrowSitemapTools
 {
     /* max. amount of links in 1 sitemap */
-    const MAX_PER_FILE = 300;
+    const MAX_PER_FILE = 49999;
     const DEFAULT_LIMIT = 200;
     public static $excludes = null;
 
@@ -213,7 +213,8 @@ class xrowSitemapTools
         {
             return false;
         }
-        if ( $ini->hasVariable( 'SitemapSettings', 'GalleryClasses' ) and in_array( $node->attribute( 'parent' )->attribute( 'class_identifier' ), $ini->variable( 'SitemapSettings', 'GalleryClasses' ) ) and in_array( $node->attribute( 'class_identifier' ), $ini->variable( 'SitemapSettings', 'ImageClasses' ) ) )
+
+        if ( $ini->hasVariable( 'SitemapSettings', 'GalleryClasses' ) and $node->attribute( 'parent' ) instanceof eZContentObjectTreeNode and in_array( $node->attribute( 'parent' )->attribute( 'class_identifier' ), $ini->variable( 'SitemapSettings', 'GalleryClasses' ) ) and in_array( $node->attribute( 'class_identifier' ), $ini->variable( 'SitemapSettings', 'ImageClasses' ) ) )
         {
             return false;
         }
@@ -449,20 +450,24 @@ class xrowSitemapTools
             unlink( $tmpsitemapfiles[$i] );
         }
     }
-
+public static $rootNode;
     /**
      * Get the Sitemap's root node
      */
     public static function rootNode()
     {
-        $contentINI = eZINI::instance( 'content.ini' );
-        $rootNode = eZContentObjectTreeNode::fetch( $contentINI->variable( 'NodeSettings', 'RootNode' ) );
+	if( self::$rootNode === null )
+	{
+        $node_id = eZINI::instance( 'content.ini' )->variable( 'NodeSettings', 'RootNode' );
+        $rootNode = eZContentObjectTreeNode::fetch( $node_id );
         
         if ( ! $rootNode instanceof eZContentObjectTreeNode )
         {
-            throw new Exception( "Invalid RootNode for Siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " \n" );
+            throw new Exception( "Invalid RootNode".$node_id." for Siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " \n" );
         }
-        return $rootNode;
+		self::$rootNode = $rootNode;
+	}
+        return self::$rootNode;
     }
 
     public static function createMobileSitemap()
