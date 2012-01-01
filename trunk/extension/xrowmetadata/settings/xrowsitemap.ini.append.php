@@ -1,6 +1,10 @@
 <?php /* #?ini charset="utf8"?
 
 [Settings]
+# Offset in days 
+#ArchiveTimeShift=60
+# Activate archive cronjob capabilities
+#Archive=enabled
 # Pings Google, Bing for update.
 #Ping=true
 

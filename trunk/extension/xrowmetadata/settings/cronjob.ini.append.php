@@ -4,6 +4,10 @@
 Scripts[]
 Scripts[]=sitemap.php
 
+[CronjobPart-archivesitemap]
+Scripts[]
+Scripts[]=archivesitemap.php
+
 [CronjobPart-newssitemap]
 Scripts[]
 Scripts[]=newssitemap.php

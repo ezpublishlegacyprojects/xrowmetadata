@@ -6,8 +6,13 @@ require_once "access.php";
 class xrowSitemapTools
 {
     /* max. amount of links in 1 sitemap */
-    const MAX_PER_FILE = 49999;
-    const DEFAULT_LIMIT = 200;
+    const MAX_PER_FILE = 49998;
+    const DEFAULT_LIMIT = 250;
+    const SITEDATA_ARCHIVE_KEY = 'xrowSitemapArchiveTimestamp';
+    const FILETYP_STANDARD = 'standard';
+    const FILETYP_NEWS = 'news';
+    const FILETYP_ARCHIVE = 'archive';
+
     public static $excludes = null;
 
     public static function changeAccess( array $access )
@@ -205,7 +210,8 @@ class xrowSitemapTools
         $extensions = array();
         
         $meta = xrowMetaDataFunctions::fetchByNode( $node );
-        if ( $meta and $meta->sitemap_use != '0' )
+
+        if ( $meta and $meta->sitemap_use == '0' )
         {
             return false;
         }
@@ -285,8 +291,44 @@ class xrowSitemapTools
         return self::$addPriority;
     }
 
-    public static function createSitemap()
+    public static function createArchiveSitemap()
     {
+        self::createSitemap( true );
+    }
+
+    public static function createSitemap( $archive = false )
+    {
+        $xrowsitemapINI = eZINI::instance( 'xrowsitemap.ini' );
+        
+        if ( ! $xrowsitemapINI->hasVariable( 'Settings', 'Archive' ) or $xrowsitemapINI->variable( 'Settings', 'Archive' ) != 'disabled' )
+        {
+        	if( $xrowsitemapINI->hasVariable( 'Settings', 'ArchiveTimeShift' ) )
+        	{
+        		$offset = 3600 * 24 * (int)$xrowsitemapINI->variable( 'Settings', 'ArchiveTimeShift' ); 
+        	}
+        	else
+        	{
+        		$offset = 3600 * 24 * 30; 
+        	}
+        	
+            $time = eZSiteData::fetchByName( self::SITEDATA_ARCHIVE_KEY );
+            if ( ! $time )
+            {
+                $row = array( 
+                    'name' => self::SITEDATA_ARCHIVE_KEY , 
+                    'value' => time() - $offset
+                );
+                $time = new eZSiteData( $row );
+                $time->store();
+            }
+            if ( $archive )
+            {
+                $time = eZSiteData::fetchByName( self::SITEDATA_ARCHIVE_KEY );
+                $time->setAttribute( 'value', time() - $offset );
+                $time->store();
+            }
+            $timestamp = $time->attribute( 'value' );
+        }
         eZDebug::writeDebug( "Generating Standard Sitemap ...", __METHOD__ );
         eZContentLanguage::expireCache();
         $cli = $GLOBALS['cli'];
@@ -296,7 +338,6 @@ class xrowSitemapTools
             $cli->output( "Generating Sitemap for Siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " \n" );
         }
         $ini = eZINI::instance( 'site.ini' );
-        $xrowsitemapINI = eZINI::instance( 'xrowsitemap.ini' );
         
         if ( $xrowsitemapINI->hasVariable( 'SitemapSettings', 'ClassFilterType' ) and $xrowsitemapINI->hasVariable( 'SitemapSettings', 'ClassFilterArray' ) )
         {
@@ -314,6 +355,11 @@ class xrowSitemapTools
         {
             $limit = self::DEFAULT_LIMIT;
         }
+        if( $limit > $max )
+        {
+        	echo ( "LimitPerLoop can`t be larger as MAX_PER_FILE. LimitPerLoop is set to MAX_PER_FILE\n" );
+        	$limit = $max;
+        }
         // Fetch the content tree
         $params = array( 
             'SortBy' => array( 
@@ -327,13 +373,21 @@ class xrowSitemapTools
                 ) 
             ) 
         );
+        
+        if ( isset( $timestamp ) and $archive === true )
+        {
+        	$params['AttributeFilter'] = array( array( 'published', '<=', $timestamp ) );
+        }
+        elseif( isset( $timestamp ) and $archive === false )
+        {
+        	$params['AttributeFilter'] = array( array( 'published', '>', $timestamp ) );
+        }
         if ( isset( $params2 ) )
         {
             $params = array_merge( $params, $params2 );
         }
         $rootNode = self::rootNode();
         $subtreeCount = eZContentObjectTreeNode::subTreeCountByNodeID( $params, $rootNode->NodeID );
-        
         if ( $subtreeCount <= 1 )
         {
             throw new Exception( "No Items found under root node #" . $rootNode->NodeID . "." );
@@ -376,6 +430,7 @@ class xrowSitemapTools
             {
                 
                 $nodeArray = eZContentObjectTreeNode::subTreeByNodeID( $params, $rootNode->NodeID );
+                
                 foreach ( $nodeArray as $subTreeNode )
                 {
                     self::addNode( $sitemap, $subTreeNode );
@@ -388,8 +443,15 @@ class xrowSitemapTools
                 $params['Offset'] += $params['Limit'];
             }
             // write XML Sitemap to file
-            $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
-            $cachedir = eZSys::cacheDirectory() . '/sitemap/' . xrowSitemapTools::domain();
+            if ( $archive )
+            {
+            	$filetyp = self::FILETYP_ARCHIVE;		
+            }
+            else{
+            	$filetyp = self::FILETYP_STANDARD;	
+            }
+            $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
+            $cachedir = eZSys::cacheDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
             
             if ( ! is_dir( $dir ) )
             {
@@ -399,11 +461,11 @@ class xrowSitemapTools
             {
                 mkdir( $cachedir, 0777, true );
             }
-            
-            $filename = xrowSitemap::BASENAME . '_standard_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemap::SUFFIX;
+
+            $filename = xrowSitemap::BASENAME . '_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemap::SUFFIX;
             if ( $counter > 1 )
             {
-                $filename = xrowSitemap::BASENAME . '_standard_' . $GLOBALS['eZCurrentAccess']['name'] . '_' . $counter . '.' . xrowSitemap::SUFFIX;
+                $filename = xrowSitemap::BASENAME . '_' . $GLOBALS['eZCurrentAccess']['name'] . '_' . $counter . '.' . xrowSitemap::SUFFIX;
             }
             $sitemapfiles[] = $dir . "/" . $filename;
             $tmpsitemapfiles[] = $cachedir . "/" . $filename;
@@ -431,8 +493,18 @@ class xrowSitemapTools
             $max_all += $max;
             $sitemap = new xrowSitemap();
         }
-        //delete all
-        $dirname = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
+        $dirname = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
+		self::cleanDir($dirname);
+        //move all from cache to cluster filesystem
+        for ( $i = 0; $i < count( $sitemapfiles ); $i ++ )
+        {
+            $file = eZClusterFileHandler::instance( $sitemapfiles[$i] );
+            $file->storeContents( file_get_contents( $tmpsitemapfiles[$i] ), 'sitemap', 'text/xml' );
+            unlink( $tmpsitemapfiles[$i] );
+        }
+    }
+	static public function cleanDir( $dirname ) {
+        
         $dir = new eZClusterDirectoryIterator( $dirname );
         foreach ( $dir as $file )
         {
