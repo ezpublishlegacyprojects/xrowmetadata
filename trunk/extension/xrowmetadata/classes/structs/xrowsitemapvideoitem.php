@@ -18,7 +18,6 @@ class xrowSitemapItemVideo extends xrowSitemapItem
     public $family_friendly;
     public $restriction;
     public $gallery_loc;
-    public $player_loc;
     public $price;
     public $requires_subscription;
     public $uploader;
