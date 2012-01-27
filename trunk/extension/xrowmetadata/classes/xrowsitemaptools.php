@@ -373,7 +373,7 @@ class xrowSitemapTools
                 ) 
             ) 
         );
-        
+
         if ( isset( $timestamp ) and $archive === true )
         {
         	$params['AttributeFilter'] = array( array( 'published', '<=', $timestamp ) );
@@ -382,6 +382,7 @@ class xrowSitemapTools
         {
         	$params['AttributeFilter'] = array( array( 'published', '>', $timestamp ) );
         }
+        $params['AttributeFilter'][] = array( 'published', '>=', time()-3600*24*35 );
         if ( isset( $params2 ) )
         {
             $params = array_merge( $params, $params2 );
@@ -508,6 +509,7 @@ class xrowSitemapTools
         $dir = new eZClusterDirectoryIterator( $dirname );
         foreach ( $dir as $file )
         {
+        	echo "$file\n";
             if ( $file->exists() )
             {
                 $file->delete();
@@ -765,12 +767,21 @@ public static $rootNode;
         $max = 1000;
         $limit = 50;
         
+        $dirname = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
+		self::cleanDir($dirname);
+
         // first check if it's necerssary to recreate an exisiting one
-        $filename = eZSys::storageDirectory() . '/sitemap/' . self::domain() . '/' . xrowSitemap::BASENAME . '_news_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemapList::SUFFIX;
+        $filename = eZSys::storageDirectory() . '/sitemap/' . self::domain() . '/' . _news . '/' . xrowSitemap::BASENAME . '_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemapList::SUFFIX;
         
         $file = eZClusterFileHandler::instance( $filename );
         if ( $file->exists() )
         {
+        	#If older as 2 days
+        	$oldnews = $file->mtime() - 300;
+        	if ( $file->mtime() < $from )
+        	{
+        		$file->delete();
+        	}
             #reduce 5 min because article might be published during the runtime of the cron
             $mtime = $file->mtime() - 300;
             if ( $mtime > 0 )
