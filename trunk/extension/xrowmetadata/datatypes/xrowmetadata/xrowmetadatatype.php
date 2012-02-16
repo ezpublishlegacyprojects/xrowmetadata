@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class xrowMetaDataType extends eZDataType
 {
@@ -382,5 +382,3 @@ class xrowMetaDataType extends eZDataType
 }
 
 eZDataType::register( xrowMetaDataType::DATA_TYPE_STRING, 'xrowMetaDataType' );
-
-?>
