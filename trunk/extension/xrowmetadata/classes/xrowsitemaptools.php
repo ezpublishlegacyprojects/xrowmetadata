@@ -38,14 +38,10 @@ class xrowSitemapTools
             if ( $param === null )
             {
                 call_user_func( $fnc );
-            
-     #call_user_func_array( $fnc );
             }
             else
             {
                 call_user_func( $fnc );
-            
-     #call_user_func_array( $fnc, $param);
             }
         }
         self::changeAccess( $old_access );
@@ -299,18 +295,17 @@ class xrowSitemapTools
     public static function createSitemap( $archive = false )
     {
         $xrowsitemapINI = eZINI::instance( 'xrowsitemap.ini' );
-        
         if ( ! $xrowsitemapINI->hasVariable( 'Settings', 'Archive' ) or $xrowsitemapINI->variable( 'Settings', 'Archive' ) != 'disabled' )
         {
-        	if( $xrowsitemapINI->hasVariable( 'Settings', 'ArchiveTimeShift' ) )
-        	{
-        		$offset = 3600 * 24 * (int)$xrowsitemapINI->variable( 'Settings', 'ArchiveTimeShift' ); 
-        	}
-        	else
-        	{
-        		$offset = 3600 * 24 * 30; 
-        	}
-        	
+            if( $xrowsitemapINI->hasVariable( 'Settings', 'ArchiveTimeShift' ) )
+            {
+                $offset = 3600 * 24 * (int)$xrowsitemapINI->variable( 'Settings', 'ArchiveTimeShift' ); 
+            }
+            else
+            {
+                $offset = 3600 * 24 * 30; 
+            }
+            
             $time = eZSiteData::fetchByName( self::SITEDATA_ARCHIVE_KEY );
             if ( ! $time )
             {
@@ -357,8 +352,8 @@ class xrowSitemapTools
         }
         if( $limit > $max )
         {
-        	echo ( "LimitPerLoop can`t be larger as MAX_PER_FILE. LimitPerLoop is set to MAX_PER_FILE\n" );
-        	$limit = $max;
+            echo ( "LimitPerLoop can`t be larger as MAX_PER_FILE. LimitPerLoop is set to MAX_PER_FILE\n" );
+            $limit = $max;
         }
         // Fetch the content tree
         $params = array( 
@@ -376,11 +371,11 @@ class xrowSitemapTools
 
         if ( isset( $timestamp ) and $archive === true )
         {
-        	$params['AttributeFilter'] = array( array( 'published', '<=', $timestamp ) );
+            $params['AttributeFilter'] = array( array( 'published', '<=', $timestamp ) );
         }
         elseif( isset( $timestamp ) and $archive === false )
         {
-        	$params['AttributeFilter'] = array( array( 'published', '>', $timestamp ) );
+            $params['AttributeFilter'] = array( array( 'published', '>', $timestamp ) );
         }
         $params['AttributeFilter'][] = array( 'published', '>=', time()-3600*24*35 );
         if ( isset( $params2 ) )
@@ -410,6 +405,17 @@ class xrowSitemapTools
             $cli->output( "Adding $amount nodes to the sitemap." );
             $output = new ezcConsoleOutput();
         }
+
+        // write XML Sitemap to file
+        if ( $archive )
+        {
+            $filetyp = self::FILETYP_ARCHIVE;
+        }
+        else{
+            $filetyp = self::FILETYP_STANDARD;
+        }
+        $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
+        $cachedir = eZSys::cacheDirectory() . '/sitemap/' . xrowSitemapTools::domain();
         $sitemapfiles = array();
         $tmpsitemapfiles = array();
         while ( $counter <= $runs )
@@ -429,9 +435,7 @@ class xrowSitemapTools
             }
             while ( $params['Offset'] < $max_all )
             {
-                
                 $nodeArray = eZContentObjectTreeNode::subTreeByNodeID( $params, $rootNode->NodeID );
-                
                 foreach ( $nodeArray as $subTreeNode )
                 {
                     self::addNode( $sitemap, $subTreeNode );
@@ -443,17 +447,7 @@ class xrowSitemapTools
                 eZContentObject::clearCache();
                 $params['Offset'] += $params['Limit'];
             }
-            // write XML Sitemap to file
-            if ( $archive )
-            {
-            	$filetyp = self::FILETYP_ARCHIVE;		
-            }
-            else{
-            	$filetyp = self::FILETYP_STANDARD;	
-            }
-            $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
-            $cachedir = eZSys::cacheDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
-            
+
             if ( ! is_dir( $dir ) )
             {
                 mkdir( $dir, 0777, true );
@@ -463,84 +457,82 @@ class xrowSitemapTools
                 mkdir( $cachedir, 0777, true );
             }
 
-            $filename = xrowSitemap::BASENAME . '_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemap::SUFFIX;
+            $filename = xrowSitemap::BASENAME . '_' . $filetyp . '_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemap::SUFFIX;
             if ( $counter > 1 )
             {
-                $filename = xrowSitemap::BASENAME . '_' . $GLOBALS['eZCurrentAccess']['name'] . '_' . $counter . '.' . xrowSitemap::SUFFIX;
+                $filename = xrowSitemap::BASENAME . '_' . $filetyp . '_' . $GLOBALS['eZCurrentAccess']['name'] . '_' . $counter . '.' . xrowSitemap::SUFFIX;
             }
             $sitemapfiles[] = $dir . "/" . $filename;
             $tmpsitemapfiles[] = $cachedir . "/" . $filename;
-            
+
             $sitemap->saveLocal( $cachedir . "/" . $filename );
             if ( ! $isQuiet )
             {
                 $cli->output( "\n" );
-                $cli->output( "Time: " . date( 'd.m.Y H:i:s' ) . ". Action: Sitemap $filename for siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " has been generated.\n" );
+                $cli->output( "Time: " . date( 'd.m.Y H:i:s' ) . ". Action: Sitemap $filename for siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " has been generated in $cachedir.\n" );
             }
-            
+
             /**
              * @TODO How will this work with cluster?
-    	if ( function_exists( 'gzencode' ) and $xrowsitemapINI->variable( 'SitemapSettings', 'Gzip' ) == 'enabled' )
-                        {
-                                $content = file_get_contents( $filename );
-                                $content = gzencode( $content );
-                                file_put_contents( $filename . '.gz', $content );
-                                unlink( $filename );
-                                $filename .= '.gz';
-                        }
-             **/
-            
+            if ( function_exists( 'gzencode' ) and $xrowsitemapINI->variable( 'SitemapSettings', 'Gzip' ) == 'enabled' )
+            {
+                $content = file_get_contents( $filename );
+                $content = gzencode( $content );
+                file_put_contents( $filename . '.gz', $content );
+                unlink( $filename );
+                $filename .= '.gz';
+            }
+            **/
             $counter ++;
             $max_all += $max;
             $sitemap = new xrowSitemap();
         }
-        $dirname = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
-		self::cleanDir($dirname);
+        self::cleanDir($dir);
         //move all from cache to cluster filesystem
-        for ( $i = 0; $i < count( $sitemapfiles ); $i ++ )
+        foreach( $sitemapfiles as $key => $sitemapfile )
         {
-            $file = eZClusterFileHandler::instance( $sitemapfiles[$i] );
-            $file->storeContents( file_get_contents( $tmpsitemapfiles[$i] ), 'sitemap', 'text/xml' );
-            unlink( $tmpsitemapfiles[$i] );
+            $file = eZClusterFileHandler::instance( $sitemapfile );
+            $file->storeContents( file_get_contents( $tmpsitemapfiles[$key] ), 'sitemap', 'text/xml' );
+            if ( ! $isQuiet )
+            {
+                $cli->output( "\n" );
+                $cli->output( "Time: " . date( 'd.m.Y H:i:s' ) . ". Action: Sitemap $filename for siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " has been moved to $dir.\n" );
+            }
+            unlink( $tmpsitemapfiles[$key] );
         }
     }
-	static public function cleanDir( $dirname ) {
-        
+
+    static public function cleanDir( $dirname )
+    {
         $dir = new eZClusterDirectoryIterator( $dirname );
         foreach ( $dir as $file )
         {
-        	echo "$file\n";
+            echo "$file\n";
             if ( $file->exists() )
             {
                 $file->delete();
             }
         }
         unset( $dir );
-        //move all from cache to cluster filesystem
-        for ( $i = 0; $i < count( $sitemapfiles ); $i ++ )
-        {
-            $file = eZClusterFileHandler::instance( $sitemapfiles[$i] );
-            $file->storeContents( file_get_contents( $tmpsitemapfiles[$i] ), 'sitemap', 'text/xml' );
-            unlink( $tmpsitemapfiles[$i] );
-        }
     }
-public static $rootNode;
+
+    public static $rootNode;
     /**
      * Get the Sitemap's root node
      */
     public static function rootNode()
     {
-	if( self::$rootNode === null )
-	{
-        $node_id = eZINI::instance( 'content.ini' )->variable( 'NodeSettings', 'RootNode' );
-        $rootNode = eZContentObjectTreeNode::fetch( $node_id );
-        
-        if ( ! $rootNode instanceof eZContentObjectTreeNode )
+        if( self::$rootNode === null )
         {
-            throw new Exception( "Invalid RootNode".$node_id." for Siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " \n" );
+            $node_id = eZINI::instance( 'content.ini' )->variable( 'NodeSettings', 'RootNode' );
+            $rootNode = eZContentObjectTreeNode::fetch( $node_id );
+
+            if ( ! $rootNode instanceof eZContentObjectTreeNode )
+            {
+                throw new Exception( "Invalid RootNode".$node_id." for Siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " \n" );
+            }
+            self::$rootNode = $rootNode;
         }
-		self::$rootNode = $rootNode;
-	}
         return self::$rootNode;
     }
 
@@ -593,14 +585,14 @@ public static $rootNode;
         {
             $params = array_merge( $params, $params2 );
         }
-        
+
         $subtreeCount = eZContentObjectTreeNode::subTreeCountByNodeID( $params, $rootNode->NodeID );
-        
+
         if ( $subtreeCount == 1 )
         {
             $cli->output( "No Items found under node #" . $contentINI->variable( 'NodeSettings', 'RootNode' ) . "." );
         }
-        
+
         if ( ! $isQuiet )
         {
             $amount = $subtreeCount + 1; // +1 is root node
@@ -608,18 +600,18 @@ public static $rootNode;
             $output = new ezcConsoleOutput();
             $bar = new ezcConsoleProgressbar( $output, $amount );
         }
-        
+
         $addPrio = false;
         if ( $xrowsitemapINI->hasVariable( 'Settings', 'AddPriorityToSubtree' ) and $xrowsitemapINI->variable( 'Settings', 'AddPriorityToSubtree' ) == 'true' )
         {
             $addPrio = true;
         }
-        
+
         $sitemap = new xrowMobileSitemap();
         // Generate Sitemap
         /** START Adding the root node **/
         $object = $rootNode->object();
-        
+
         $meta = xrowMetaDataFunctions::fetchByObject( $object );
         $extensions = array();
         $extensions[] = new xrowSitemapItemModified( $rootNode->attribute( 'modified_subnode' ) );
@@ -656,17 +648,16 @@ public static $rootNode;
         {
             $nodeArray = eZContentObjectTreeNode::subTreeByNodeID( $params, $rootNode->NodeID );
             foreach ( $nodeArray as $subTreeNode )
-            
             {
                 eZContentLanguage::expireCache();
                 $meta = xrowMetaDataFunctions::fetchByNode( $subTreeNode );
                 $extensions = array();
                 $extensions[] = new xrowSitemapItemModified( $subTreeNode->attribute( 'modified_subnode' ) );
-                
+
                 $url = $subTreeNode->attribute( 'url_alias' );
                 eZURI::transformURI( $url );
                 $url = 'http://' . xrowSitemapTools::domain() . $url;
-                
+
                 if ( $meta and $meta->sitemap_use != '0' )
                 {
                     $extensions[] = new xrowSitemapItemFrequency( $meta->change );
@@ -675,7 +666,6 @@ public static $rootNode;
                 }
                 elseif ( $meta === false and $xrowsitemapINI->variable( 'Settings', 'AlwaysAdd' ) == 'enabled' )
                 {
-                    
                     if ( $addPrio )
                     {
                         $rootDepth = $rootNode->attribute( 'depth' );
@@ -685,11 +675,9 @@ public static $rootNode;
                             $extensions[] = new xrowSitemapItemPriority( $prio );
                         }
                     }
-                    
                     $sitemap->add( $url, $extensions );
-                
                 }
-                
+
                 if ( isset( $bar ) )
                 {
                     $bar->advance();
@@ -704,23 +692,20 @@ public static $rootNode;
         {
             mkdir( $dir, 0777, true );
         }
-        
         $filename = $dir . '/' . xrowSitemap::BASENAME . '_mobile_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemap::SUFFIX;
-        
         $sitemap->save( $filename );
-        
+
         /**
          * @TODO How will this work with cluster?
-    if ( function_exists( 'gzencode' ) and $xrowsitemapINI->variable( 'MobileSitemapSettings', 'Gzip' ) == 'enabled' )
-    {
-        $content = file_get_contents( $filename );
-        $content = gzencode( $content );
-        file_put_contents( $filename . '.gz', $content );
-        unlink( $filename );
-        $filename .= '.gz';
-    }
+        if ( function_exists( 'gzencode' ) and $xrowsitemapINI->variable( 'MobileSitemapSettings', 'Gzip' ) == 'enabled' )
+        {
+            $content = file_get_contents( $filename );
+            $content = gzencode( $content );
+            file_put_contents( $filename . '.gz', $content );
+            unlink( $filename );
+            $filename .= '.gz';
+        }
          **/
-        
         if ( ! $isQuiet )
         {
             $cli->output( "\n" );
@@ -733,9 +718,9 @@ public static $rootNode;
         eZDebug::writeDebug( "Generating News Sitemap ...", __METHOD__ );
         $cli = $GLOBALS['cli'];
         global $cli, $isQuiet;
-        
+
         $rootNode = (int) eZINI::instance( 'content.ini' )->variable( 'NodeSettings', 'RootNode' );
-        
+
         $ini = eZINI::instance( 'xrowsitemap.ini' );
         if ( $ini->hasVariable( 'NewsSitemapSettings', 'ClassFilterArray' ) )
         {
@@ -743,45 +728,45 @@ public static $rootNode;
             $params2['ClassFilterArray'] = $ini->variable( 'NewsSitemapSettings', 'ClassFilterArray' );
             $params2['ClassFilterType'] = 'include';
         }
-        
+
         if ( $ini->hasVariable( 'NewsSitemapSettings', 'RootNode' ) )
         {
             $rootNode = (int) $ini->variable( 'NewsSitemapSettings', 'RootNode' );
         }
-        
+
         if ( $ini->hasVariable( 'NewsSitemapSettings', 'Limitation' ) )
         {
             $limitation = $ini->variable( 'NewsSitemapSettings', 'Limitation' );
         }
-        
+
         if ( $ini->hasVariable( 'NewsSitemapSettings', 'ExtraAttributeFilter' ) )
         {
             $extra_attribute_filter = array();
             $extra_attribute_filter = $ini->variable( 'NewsSitemapSettings', 'ExtraAttributeFilter' );
         }
-        
+
         // Your News Sitemap should contain only URLs for your articles published in the last two days.
         $from = time() - 172800; // minus 2 days
         $till = time();
         // A News Sitemap can contain no more than 1,000 URLs.
         $max = 1000;
         $limit = 50;
-        
+
         $dirname = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
-		self::cleanDir($dirname);
+        self::cleanDir($dirname);
 
         // first check if it's necerssary to recreate an exisiting one
         $filename = eZSys::storageDirectory() . '/sitemap/' . self::domain() . '/' . _news . '/' . xrowSitemap::BASENAME . '_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemapList::SUFFIX;
-        
+
         $file = eZClusterFileHandler::instance( $filename );
         if ( $file->exists() )
         {
-        	#If older as 2 days
-        	$oldnews = $file->mtime() - 300;
-        	if ( $file->mtime() < $from )
-        	{
-        		$file->delete();
-        	}
+            #If older as 2 days
+            $oldnews = $file->mtime() - 300;
+            if ( $file->mtime() < $from )
+            {
+                $file->delete();
+            }
             #reduce 5 min because article might be published during the runtime of the cron
             $mtime = $file->mtime() - 300;
             if ( $mtime > 0 )
@@ -835,10 +820,8 @@ public static $rootNode;
                     eZDebug::writeDebug( "No new published news", __METHOD__ );
                     return;
                 }
-            
             }
         }
-        
         $params = array( 
             'IgnoreVisibility' => false , 
             'MainNodeOnly' => false , 
@@ -867,7 +850,6 @@ public static $rootNode;
         {
             $params = array_merge( $params, $params2 );
         }
-        
         if ( isset( $limitation ) && $limitation == 'disable' )
         {
             $params['Limitation'] = array();
@@ -883,9 +865,9 @@ public static $rootNode;
                 }
             }
         }
-        
+
         $subtreeCount = eZContentObjectTreeNode::subTreeCountByNodeID( $params, $rootNode );
-        
+
         $max = min( $max, $subtreeCount );
         $max_all = $max;
         $params['Limit'] = $limit;
@@ -898,7 +880,11 @@ public static $rootNode;
             $cli->output( "Adding $amount nodes to the news sitemap." );
             $output = new ezcConsoleOutput();
         }
-        
+
+        $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
+        $cachedir = eZSys::cacheDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
+        $sitemapfiles = array();
+        $tmpsitemapfiles = array();
         while ( $counter <= $runs )
         {
             eZDebug::writeDebug( 'Run ' . $counter . ' of ' . $runs . ' runs' );
@@ -936,28 +922,28 @@ public static $rootNode;
                 eZContentObject::clearCache();
                 $params['Offset'] += $params['Limit'];
             }
-            
+
             // write XML Sitemap to file
             $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
             if ( ! is_dir( $dir ) )
             {
                 mkdir( $dir, 0777, true );
             }
-            
+
             $filename = $dir . '/' . xrowSitemap::BASENAME . '_news_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemap::SUFFIX;
             
             if ( $counter > 1 )
             {
                 $filename = $dir . '/' . xrowSitemap::BASENAME . '_news_' . $GLOBALS['eZCurrentAccess']['name'] . '_' . $counter . '.' . xrowSitemap::SUFFIX;
             }
-            
+
             $sitemap->save( $filename );
             if ( ! $isQuiet )
             {
                 $cli->output( "\n" );
                 $cli->output( "Time: " . date( 'd.m.Y H:i:s' ) . ". Action: Sitemap $filename for siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " has been generated.\n" );
             }
-            
+
             $counter ++;
             $max_all += $max;
             $sitemap = new xrowSitemap();
@@ -978,7 +964,7 @@ public static $rootNode;
     public static function checkAccess( eZContentObject $contentobject, eZUser $user, $functionName, $originalClassID = false, $parentClassID = false, $returnAccessList = false, $language = false )
     {
         $classID = $originalClassID;
-        
+
         $userID = $user->attribute( 'contentobject_id' );
         $origFunctionName = $functionName;
         
@@ -993,7 +979,7 @@ public static $rootNode;
         {
             $language = false;
         }
-        
+
         // This will be filled in with the available languages of the object
         // if a Language check is performed.
         $languageList = false;
@@ -1003,10 +989,10 @@ public static $rootNode;
         // The original function is still available in $origFunctionName
         if ( $functionName == 'move' )
             $functionName = 'edit';
-        
+
         $accessResult = $user->hasAccessTo( 'content', $functionName );
         $accessWord = $accessResult['accessWord'];
-        
+
         /*
         // Uncomment this part if 'create' permissions should become implied 'edit'.
         // Merges in 'create' policies with 'edit'
@@ -1031,7 +1017,7 @@ public static $rootNode;
             }
         }
         */
-        
+
         if ( $origFunctionName == 'remove' or $origFunctionName == 'move' )
         {
             $mainNode = $contentobject->attribute( 'main_node' );
@@ -1043,7 +1029,7 @@ public static $rootNode;
                 return 0;
             }
         }
-        
+
         if ( $classID === false )
         {
             $classID = $contentobject->attribute( 'contentclass_id' );
@@ -1071,7 +1057,7 @@ public static $rootNode;
                         return 0;
                     }
                 }
-                
+
                 if ( $returnAccessList === false )
                 {
                     return 0;
@@ -1092,7 +1078,7 @@ public static $rootNode;
                     {
                         break;
                     }
-                    
+
                     $limitationList = array();
                     if ( isset( $limitationArray['Subtree'] ) )
                     {
@@ -1118,202 +1104,383 @@ public static $rootNode;
                         switch ( $key )
                         {
                             case 'Class':
+                            {
+                                if ( $functionName == 'create' and ! $originalClassID )
                                 {
-                                    if ( $functionName == 'create' and ! $originalClassID )
-                                    {
-                                        $access = 'allowed';
-                                    }
-                                    else 
-                                        if ( $functionName == 'create' and in_array( $classID, $limitationArray[$key] ) )
-                                        {
-                                            $access = 'allowed';
-                                        }
-                                        else 
-                                            if ( $functionName != 'create' and in_array( $contentobject->attribute( 'contentclass_id' ), $limitationArray[$key] ) )
-                                            {
-                                                $access = 'allowed';
-                                            }
-                                            else
-                                            {
-                                                $access = 'denied';
-                                                $limitationList = array( 
-                                                    'Limitation' => $key , 
-                                                    'Required' => $limitationArray[$key] 
-                                                );
-                                            }
+                                    $access = 'allowed';
                                 }
-                                break;
-                            
-                            case 'ParentClass':
+                                else
                                 {
-                                    
-                                    if ( in_array( $contentobject->attribute( 'contentclass_id' ), $limitationArray[$key] ) )
+                                    if ( $functionName == 'create' and in_array( $classID, $limitationArray[$key] ) )
                                     {
                                         $access = 'allowed';
                                     }
                                     else
                                     {
-                                        $access = 'denied';
-                                        $limitationList = array( 
-                                            'Limitation' => $key , 
-                                            'Required' => $limitationArray[$key] 
-                                        );
+                                        if ( $functionName != 'create' and in_array( $contentobject->attribute( 'contentclass_id' ), $limitationArray[$key] ) )
+                                        {
+                                            $access = 'allowed';
+                                        }
+                                        else
+                                        {
+                                            $access = 'denied';
+                                            $limitationList = array( 
+                                                'Limitation' => $key , 
+                                                'Required' => $limitationArray[$key] 
+                                            );
+                                        }
                                     }
                                 }
-                                break;
-                            
-                            case 'ParentDepth':
+                            }
+                            break;
+
+                            case 'ParentClass':
+                            {
+                                if ( in_array( $contentobject->attribute( 'contentclass_id' ), $limitationArray[$key] ) )
                                 {
-                                    $assignedNodes = $contentobject->attribute( 'assigned_nodes' );
-                                    if ( count( $assignedNodes ) > 0 )
+                                    $access = 'allowed';
+                                }
+                                else
+                                {
+                                    $access = 'denied';
+                                    $limitationList = array( 
+                                        'Limitation' => $key , 
+                                        'Required' => $limitationArray[$key] 
+                                    );
+                                }
+                            }
+                            break;
+
+                            case 'ParentDepth':
+                            {
+                                $assignedNodes = $contentobject->attribute( 'assigned_nodes' );
+                                if ( count( $assignedNodes ) > 0 )
+                                {
+                                    foreach ( $assignedNodes as $assignedNode )
                                     {
-                                        foreach ( $assignedNodes as $assignedNode )
+                                        $depth = $assignedNode->attribute( 'depth' );
+                                        if ( in_array( $depth, $limitationArray[$key] ) )
                                         {
-                                            $depth = $assignedNode->attribute( 'depth' );
-                                            if ( in_array( $depth, $limitationArray[$key] ) )
+                                            $access = 'allowed';
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if ( $access != 'allowed' )
+                                {
+                                    $access = 'denied';
+                                    $limitationList = array( 
+                                        'Limitation' => $key , 
+                                        'Required' => $limitationArray[$key] 
+                                    );
+                                }
+                            }
+                            break;
+
+                            case 'Section':
+                            case 'User_Section':
+                            {
+                                if ( in_array( $contentobject->attribute( 'section_id' ), $limitationArray[$key] ) )
+                                {
+                                    $access = 'allowed';
+                                }
+                                else
+                                {
+                                    $access = 'denied';
+                                    $limitationList = array( 
+                                        'Limitation' => $key , 
+                                        'Required' => $limitationArray[$key] 
+                                    );
+                                }
+                            }
+                            break;
+
+                            case 'Language':
+                            {
+                                $languageMask = 0;
+                                // If we don't have a language list yet we need to fetch it
+                                // and optionally filter out based on $language.
+                                
+
+                                if ( $functionName == 'create' )
+                                {
+                                    // If the function is 'create' we do not use the language_mask for matching.
+                                    if ( $language !== false )
+                                    {
+                                        $languageMask = $language;
+                                    }
+                                    else
+                                    {
+                                        // If the create is used and no language specified then
+                                        // we need to match against all possible languages (which
+                                        // is all bits set, ie. -1).
+                                        $languageMask = - 1;
+                                    }
+                                }
+                                else
+                                {
+                                    if ( $language !== false )
+                                    {
+                                        if ( $languageList === false )
+                                        {
+                                            $languageMask = (int) $contentobject->attribute( 'language_mask' );
+                                            // We are restricting language check to just one language
+                                            $languageMask &= (int) $language;
+                                            // If the resulting mask is 0 it means that the user is trying to
+                                            // edit a language which does not exist, ie. translating.
+                                            // The mask will then become the language trying to edit.
+                                            if ( $languageMask == 0 )
+                                            {
+                                                $languageMask = $language;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        $languageMask = - 1;
+                                    }
+                                }
+                                // Fetch limit mask for limitation list
+                                $limitMask = eZContentLanguage::maskByLocale( $limitationArray[$key] );
+                                if ( ( $languageMask & $limitMask ) != 0 )
+                                {
+                                    $access = 'allowed';
+                                }
+                                else
+                                {
+                                    $access = 'denied';
+                                    $limitationList = array( 
+                                        'Limitation' => $key , 
+                                        'Required' => $limitationArray[$key] 
+                                    );
+                                }
+                            }
+                            break;
+
+                            case 'Owner':
+                            case 'ParentOwner':
+                            {
+                                // if limitation value == 2, anonymous limited to current session.
+                                if ( in_array( 2, $limitationArray[$key] ) && $user->isAnonymous() )
+                                {
+                                    $createdObjectIDList = eZPreferences::value( 'ObjectCreationIDList' );
+                                    if ( $createdObjectIDList && in_array( $contentobject->ID, unserialize( $createdObjectIDList ) ) )
+                                    {
+                                        $access = 'allowed';
+                                    }
+                                }
+                                else 
+                                    if ( $contentobject->attribute( 'owner_id' ) == $userID || $contentobject->ID == $userID )
+                                    {
+                                        $access = 'allowed';
+                                    }
+                                if ( $access != 'allowed' )
+                                {
+                                    $access = 'denied';
+                                    $limitationList = array( 
+                                        'Limitation' => $key , 
+                                        'Required' => $limitationArray[$key] 
+                                    );
+                                }
+                            }
+                            break;
+
+                            case 'Group':
+                            case 'ParentGroup':
+                            {
+                                $access = $contentobject->checkGroupLimitationAccess( $limitationArray[$key], $userID );
+                                
+                                if ( $access != 'allowed' )
+                                {
+                                    $access = 'denied';
+                                    $limitationList = array( 
+                                        'Limitation' => $key , 
+                                        'Required' => $limitationArray[$key] 
+                                    );
+                                }
+                            }
+                            break;
+
+                            case 'State':
+                            {
+                                if ( count( array_intersect( $limitationArray[$key], $contentobject->attribute( 'state_id_array' ) ) ) == 0 )
+                                {
+                                    $access = 'denied';
+                                    $limitationList = array( 
+                                        'Limitation' => $key , 
+                                        'Required' => $limitationArray[$key] 
+                                    );
+                                }
+                                else
+                                {
+                                    $access = 'allowed';
+                                }
+                            }
+                            break;
+
+                            case 'Node':
+                            {
+                                $accessNode = false;
+                                $mainNodeID = $contentobject->attribute( 'main_node_id' );
+                                foreach ( $limitationArray[$key] as $nodeID )
+                                {
+                                    $node = eZContentObjectTreeNode::fetch( $nodeID, false, false );
+                                    $limitationNodeID = $node['main_node_id'];
+                                    if ( $mainNodeID == $limitationNodeID )
+                                    {
+                                        $access = 'allowed';
+                                        $accessNode = true;
+                                        break;
+                                    }
+                                }
+                                if ( $access != 'allowed' && $checkedSubtree && ! $accessSubtree )
+                                {
+                                    $access = 'denied';
+                                    // ??? TODO: if there is a limitation on Subtree, return two limitations?
+                                    $limitationList = array( 
+                                        'Limitation' => $key , 
+                                        'Required' => $limitationArray[$key] 
+                                    );
+                                }
+                                else
+                                {
+                                    $access = 'allowed';
+                                }
+                                $checkedNode = true;
+                            }
+                            break;
+
+                            case 'Subtree':
+                            {
+                                $accessSubtree = false;
+                                $assignedNodes = $contentobject->attribute( 'assigned_nodes' );
+                                if ( count( $assignedNodes ) != 0 )
+                                {
+                                    foreach ( $assignedNodes as $assignedNode )
+                                    {
+                                        $path = $assignedNode->attribute( 'path_string' );
+                                        $subtreeArray = $limitationArray[$key];
+                                        foreach ( $subtreeArray as $subtreeString )
+                                        {
+                                            if ( strstr( $path, $subtreeString ) )
                                             {
                                                 $access = 'allowed';
+                                                $accessSubtree = true;
                                                 break;
                                             }
                                         }
                                     }
-                                    
-                                    if ( $access != 'allowed' )
-                                    {
-                                        $access = 'denied';
-                                        $limitationList = array( 
-                                            'Limitation' => $key , 
-                                            'Required' => $limitationArray[$key] 
-                                        );
-                                    }
                                 }
-                                break;
-                            
-                            case 'Section':
-                            case 'User_Section':
+                                else
                                 {
-                                    if ( in_array( $contentobject->attribute( 'section_id' ), $limitationArray[$key] ) )
+                                    $parentNodes = $contentobject->attribute( 'parent_nodes' );
+                                    if ( count( $parentNodes ) == 0 )
                                     {
-                                        $access = 'allowed';
-                                    }
-                                    else
-                                    {
-                                        $access = 'denied';
-                                        $limitationList = array( 
-                                            'Limitation' => $key , 
-                                            'Required' => $limitationArray[$key] 
-                                        );
-                                    }
-                                }
-                                break;
-                            
-                            case 'Language':
-                                {
-                                    $languageMask = 0;
-                                    // If we don't have a language list yet we need to fetch it
-                                    // and optionally filter out based on $language.
-                                    
-
-                                    if ( $functionName == 'create' )
-                                    {
-                                        // If the function is 'create' we do not use the language_mask for matching.
-                                        if ( $language !== false )
+                                        if ( $contentobject->attribute( 'owner_id' ) == $userID || $contentobject->ID == $userID )
                                         {
-                                            $languageMask = $language;
-                                        }
-                                        else
-                                        {
-                                            // If the create is used and no language specified then
-                                            // we need to match against all possible languages (which
-                                            // is all bits set, ie. -1).
-                                            $languageMask = - 1;
+                                            $access = 'allowed';
+                                            $accessSubtree = true;
                                         }
                                     }
                                     else
                                     {
-                                        if ( $language !== false )
+                                        foreach ( $parentNodes as $parentNode )
                                         {
-                                            if ( $languageList === false )
+                                            $parentNode = eZContentObjectTreeNode::fetch( $parentNode, false, false );
+                                            $path = $parentNode['path_string'];
+                                            
+                                            $subtreeArray = $limitationArray[$key];
+                                            foreach ( $subtreeArray as $subtreeString )
                                             {
-                                                $languageMask = (int) $contentobject->attribute( 'language_mask' );
-                                                // We are restricting language check to just one language
-                                                $languageMask &= (int) $language;
-                                                // If the resulting mask is 0 it means that the user is trying to
-                                                // edit a language which does not exist, ie. translating.
-                                                // The mask will then become the language trying to edit.
-                                                if ( $languageMask == 0 )
+                                                if ( strstr( $path, $subtreeString ) )
                                                 {
-                                                    $languageMask = $language;
+                                                    $access = 'allowed';
+                                                    $accessSubtree = true;
+                                                    break;
                                                 }
                                             }
                                         }
-                                        else
-                                        {
-                                            $languageMask = - 1;
-                                        }
-                                    }
-                                    // Fetch limit mask for limitation list
-                                    $limitMask = eZContentLanguage::maskByLocale( $limitationArray[$key] );
-                                    if ( ( $languageMask & $limitMask ) != 0 )
-                                    {
-                                        $access = 'allowed';
-                                    }
-                                    else
-                                    {
-                                        $access = 'denied';
-                                        $limitationList = array( 
-                                            'Limitation' => $key , 
-                                            'Required' => $limitationArray[$key] 
-                                        );
                                     }
                                 }
-                                break;
-                            
-                            case 'Owner':
-                            case 'ParentOwner':
+                                if ( $access != 'allowed' && $checkedNode && ! $accessNode )
                                 {
-                                    // if limitation value == 2, anonymous limited to current session.
-                                    if ( in_array( 2, $limitationArray[$key] ) && $user->isAnonymous() )
+                                    $access = 'denied';
+                                    // ??? TODO: if there is a limitation on Node, return two limitations?
+                                    $limitationList = array( 
+                                        'Limitation' => $key , 
+                                        'Required' => $limitationArray[$key] 
+                                    );
+                                }
+                                else
+                                {
+                                    $access = 'allowed';
+                                }
+                                $checkedSubtree = true;
+                            }
+                            break;
+
+                            case 'User_Subtree':
+                            {
+                                $assignedNodes = $contentobject->attribute( 'assigned_nodes' );
+                                if ( count( $assignedNodes ) != 0 )
+                                {
+                                    foreach ( $assignedNodes as $assignedNode )
                                     {
-                                        $createdObjectIDList = eZPreferences::value( 'ObjectCreationIDList' );
-                                        if ( $createdObjectIDList && in_array( $contentobject->ID, unserialize( $createdObjectIDList ) ) )
+                                        $path = $assignedNode->attribute( 'path_string' );
+                                        $subtreeArray = $limitationArray[$key];
+                                        foreach ( $subtreeArray as $subtreeString )
                                         {
-                                            $access = 'allowed';
+                                            if ( strstr( $path, $subtreeString ) )
+                                            {
+                                                $access = 'allowed';
+                                            }
                                         }
                                     }
-                                    else 
+                                }
+                                else
+                                {
+                                    $parentNodes = $contentobject->attribute( 'parent_nodes' );
+                                    if ( count( $parentNodes ) == 0 )
+                                    {
                                         if ( $contentobject->attribute( 'owner_id' ) == $userID || $contentobject->ID == $userID )
                                         {
                                             $access = 'allowed';
                                         }
-                                    if ( $access != 'allowed' )
+                                    }
+                                    else
                                     {
-                                        $access = 'denied';
-                                        $limitationList = array( 
-                                            'Limitation' => $key , 
-                                            'Required' => $limitationArray[$key] 
-                                        );
+                                        foreach ( $parentNodes as $parentNode )
+                                        {
+                                            $parentNode = eZContentObjectTreeNode::fetch( $parentNode, false, false );
+                                            $path = $parentNode['path_string'];
+                                            
+                                            $subtreeArray = $limitationArray[$key];
+                                            foreach ( $subtreeArray as $subtreeString )
+                                            {
+                                                if ( strstr( $path, $subtreeString ) )
+                                                {
+                                                    $access = 'allowed';
+                                                    break;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
-                                break;
-                            
-                            case 'Group':
-                            case 'ParentGroup':
+                                if ( $access != 'allowed' )
                                 {
-                                    $access = $contentobject->checkGroupLimitationAccess( $limitationArray[$key], $userID );
-                                    
-                                    if ( $access != 'allowed' )
-                                    {
-                                        $access = 'denied';
-                                        $limitationList = array( 
-                                            'Limitation' => $key , 
-                                            'Required' => $limitationArray[$key] 
-                                        );
-                                    }
+                                    $access = 'denied';
+                                    $limitationList = array( 
+                                        'Limitation' => $key , 
+                                        'Required' => $limitationArray[$key] 
+                                    );
                                 }
-                                break;
-                            
-                            case 'State':
+                            }
+                            break;
+
+                            default:
+                            {
+                                if ( strncmp( $key, 'StateGroup_', 11 ) === 0 )
                                 {
                                     if ( count( array_intersect( $limitationArray[$key], $contentobject->attribute( 'state_id_array' ) ) ) == 0 )
                                     {
@@ -1328,198 +1495,20 @@ public static $rootNode;
                                         $access = 'allowed';
                                     }
                                 }
-                                break;
-                            
-                            case 'Node':
-                                {
-                                    $accessNode = false;
-                                    $mainNodeID = $contentobject->attribute( 'main_node_id' );
-                                    foreach ( $limitationArray[$key] as $nodeID )
-                                    {
-                                        $node = eZContentObjectTreeNode::fetch( $nodeID, false, false );
-                                        $limitationNodeID = $node['main_node_id'];
-                                        if ( $mainNodeID == $limitationNodeID )
-                                        {
-                                            $access = 'allowed';
-                                            $accessNode = true;
-                                            break;
-                                        }
-                                    }
-                                    if ( $access != 'allowed' && $checkedSubtree && ! $accessSubtree )
-                                    {
-                                        $access = 'denied';
-                                        // ??? TODO: if there is a limitation on Subtree, return two limitations?
-                                        $limitationList = array( 
-                                            'Limitation' => $key , 
-                                            'Required' => $limitationArray[$key] 
-                                        );
-                                    }
-                                    else
-                                    {
-                                        $access = 'allowed';
-                                    }
-                                    $checkedNode = true;
-                                }
-                                break;
-                            
-                            case 'Subtree':
-                                {
-                                    $accessSubtree = false;
-                                    $assignedNodes = $contentobject->attribute( 'assigned_nodes' );
-                                    if ( count( $assignedNodes ) != 0 )
-                                    {
-                                        foreach ( $assignedNodes as $assignedNode )
-                                        {
-                                            $path = $assignedNode->attribute( 'path_string' );
-                                            $subtreeArray = $limitationArray[$key];
-                                            foreach ( $subtreeArray as $subtreeString )
-                                            {
-                                                if ( strstr( $path, $subtreeString ) )
-                                                {
-                                                    $access = 'allowed';
-                                                    $accessSubtree = true;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        $parentNodes = $contentobject->attribute( 'parent_nodes' );
-                                        if ( count( $parentNodes ) == 0 )
-                                        {
-                                            if ( $contentobject->attribute( 'owner_id' ) == $userID || $contentobject->ID == $userID )
-                                            {
-                                                $access = 'allowed';
-                                                $accessSubtree = true;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            foreach ( $parentNodes as $parentNode )
-                                            {
-                                                $parentNode = eZContentObjectTreeNode::fetch( $parentNode, false, false );
-                                                $path = $parentNode['path_string'];
-                                                
-                                                $subtreeArray = $limitationArray[$key];
-                                                foreach ( $subtreeArray as $subtreeString )
-                                                {
-                                                    if ( strstr( $path, $subtreeString ) )
-                                                    {
-                                                        $access = 'allowed';
-                                                        $accessSubtree = true;
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if ( $access != 'allowed' && $checkedNode && ! $accessNode )
-                                    {
-                                        $access = 'denied';
-                                        // ??? TODO: if there is a limitation on Node, return two limitations?
-                                        $limitationList = array( 
-                                            'Limitation' => $key , 
-                                            'Required' => $limitationArray[$key] 
-                                        );
-                                    }
-                                    else
-                                    {
-                                        $access = 'allowed';
-                                    }
-                                    $checkedSubtree = true;
-                                }
-                                break;
-                            
-                            case 'User_Subtree':
-                                {
-                                    $assignedNodes = $contentobject->attribute( 'assigned_nodes' );
-                                    if ( count( $assignedNodes ) != 0 )
-                                    {
-                                        foreach ( $assignedNodes as $assignedNode )
-                                        {
-                                            $path = $assignedNode->attribute( 'path_string' );
-                                            $subtreeArray = $limitationArray[$key];
-                                            foreach ( $subtreeArray as $subtreeString )
-                                            {
-                                                if ( strstr( $path, $subtreeString ) )
-                                                {
-                                                    $access = 'allowed';
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        $parentNodes = $contentobject->attribute( 'parent_nodes' );
-                                        if ( count( $parentNodes ) == 0 )
-                                        {
-                                            if ( $contentobject->attribute( 'owner_id' ) == $userID || $contentobject->ID == $userID )
-                                            {
-                                                $access = 'allowed';
-                                            }
-                                        }
-                                        else
-                                        {
-                                            foreach ( $parentNodes as $parentNode )
-                                            {
-                                                $parentNode = eZContentObjectTreeNode::fetch( $parentNode, false, false );
-                                                $path = $parentNode['path_string'];
-                                                
-                                                $subtreeArray = $limitationArray[$key];
-                                                foreach ( $subtreeArray as $subtreeString )
-                                                {
-                                                    if ( strstr( $path, $subtreeString ) )
-                                                    {
-                                                        $access = 'allowed';
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if ( $access != 'allowed' )
-                                    {
-                                        $access = 'denied';
-                                        $limitationList = array( 
-                                            'Limitation' => $key , 
-                                            'Required' => $limitationArray[$key] 
-                                        );
-                                    }
-                                }
-                                break;
-                            
-                            default:
-                                {
-                                    if ( strncmp( $key, 'StateGroup_', 11 ) === 0 )
-                                    {
-                                        if ( count( array_intersect( $limitationArray[$key], $contentobject->attribute( 'state_id_array' ) ) ) == 0 )
-                                        {
-                                            $access = 'denied';
-                                            $limitationList = array( 
-                                                'Limitation' => $key , 
-                                                'Required' => $limitationArray[$key] 
-                                            );
-                                        }
-                                        else
-                                        {
-                                            $access = 'allowed';
-                                        }
-                                    }
-                                }
+                            }
                         }
                         if ( $access == 'denied' )
                         {
                             break;
                         }
                     }
-                    
+
                     $policyList[] = array( 
                         'PolicyID' => $pkey , 
                         'LimitationList' => $limitationList 
                     );
                 }
-                
+
                 if ( $access == 'denied' )
                 {
                     if ( $functionName == 'edit' )
@@ -1538,7 +1527,7 @@ public static $rootNode;
                         }
                     }
                 }
-                
+
                 if ( $access == 'denied' )
                 {
                     if ( $returnAccessList === false )
@@ -1565,7 +1554,6 @@ public static $rootNode;
             }
         }
     }
-
 }
 
 ?>
