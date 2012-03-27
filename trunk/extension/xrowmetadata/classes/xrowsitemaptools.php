@@ -414,8 +414,8 @@ class xrowSitemapTools
         else{
             $filetyp = self::FILETYP_STANDARD;
         }
-        $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
-        $cachedir = eZSys::cacheDirectory() . '/sitemap/' . xrowSitemapTools::domain();
+        $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
+        $cachedir = eZSys::cacheDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
         $sitemapfiles = array();
         $tmpsitemapfiles = array();
         while ( $counter <= $runs )
@@ -457,10 +457,10 @@ class xrowSitemapTools
                 mkdir( $cachedir, 0777, true );
             }
 
-            $filename = xrowSitemap::BASENAME . '_' . $filetyp . '_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemap::SUFFIX;
+            $filename = xrowSitemap::BASENAME . '_' . $GLOBALS['eZCurrentAccess']['name'] . '.' . xrowSitemap::SUFFIX;
             if ( $counter > 1 )
             {
-                $filename = xrowSitemap::BASENAME . '_' . $filetyp . '_' . $GLOBALS['eZCurrentAccess']['name'] . '_' . $counter . '.' . xrowSitemap::SUFFIX;
+                $filename = xrowSitemap::BASENAME . '_' . $GLOBALS['eZCurrentAccess']['name'] . '_' . $counter . '.' . xrowSitemap::SUFFIX;
             }
             $sitemapfiles[] = $dir . "/" . $filename;
             $tmpsitemapfiles[] = $cachedir . "/" . $filename;
@@ -881,10 +881,7 @@ class xrowSitemapTools
             $output = new ezcConsoleOutput();
         }
 
-        $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
-        $cachedir = eZSys::cacheDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . $filetyp;
-        $sitemapfiles = array();
-        $tmpsitemapfiles = array();
+        $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
         while ( $counter <= $runs )
         {
             eZDebug::writeDebug( 'Run ' . $counter . ' of ' . $runs . ' runs' );
@@ -924,7 +921,6 @@ class xrowSitemapTools
             }
 
             // write XML Sitemap to file
-            $dir = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
             if ( ! is_dir( $dir ) )
             {
                 mkdir( $dir, 0777, true );
