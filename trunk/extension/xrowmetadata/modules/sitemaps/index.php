@@ -1,23 +1,33 @@
 <?php
 
-$ini = eZINI::instance( 'xrowsitemap.ini' );
+$ini = eZINI::instance( 'site.ini' );
+$xrowsitemapINI = eZINI::instance( 'xrowsitemap.ini' );
+
+//getting custom set site access or default access
+if ( $xrowsitemapINI->hasVariable( 'SitemapSettings', 'AvailableSiteAccessList' ) )
+{
+    $siteAccessArray = $xrowsitemapINI->variable( 'SitemapSettings', 'AvailableSiteAccessList' );
+}
+else
+{
+    $siteAccessArray = array( 
+        $ini->variable( 'SiteSettings', 'DefaultAccess' ) 
+    );
+}
 
 $Module = $Params['Module'];
 $access = $GLOBALS['eZCurrentAccess']['name'];
 
-if ( $ini->hasVariable( 'Settings', 'SiteAccessList' ) )
+if( is_array( $siteAccessArray ) && count( $siteAccessArray ) > 0 )
 {
-    $alist = $ini->hasVariable( 'Settings', 'SiteAccessList' );
-    if ( ! in_array( $access, $alist ) )
+    if ( ! in_array( $access, $siteAccessArray ) )
     {
         return $Module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' );
     }
 }
 
 $index = new xrowSitemapIndex();
-
 $dirname = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
-
 $dir = new eZClusterDirectoryIterator( $dirname );
 
 foreach ( $dir as $file )
@@ -25,7 +35,6 @@ foreach ( $dir as $file )
     $date = new xrowSitemapItemModified();
     $date->date = new DateTime( "@" . $file->mtime() );
     $loc = 'http://' . $_SERVER['HTTP_HOST'] . '/'. $file->name();
-    
     $index->add( $loc, array( 
         $date 
     ) );
