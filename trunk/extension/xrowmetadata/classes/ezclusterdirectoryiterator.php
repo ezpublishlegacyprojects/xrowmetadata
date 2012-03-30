@@ -2,7 +2,6 @@
 
 class eZClusterDirectoryIterator implements Iterator
 {
-
     function __construct( $dirname, $scope = null )
     {
         $handler = eZClusterFileHandler::instance();
