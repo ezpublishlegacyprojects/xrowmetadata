@@ -34,10 +34,10 @@ $dirArray = array( eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::d
 
 foreach ( $dirArray as $item )
 {
-    addFiles( $index, $item );
+    addFiles( $index, $item, $dirArray );
 }
 
-function addFiles( &$index, $dirname )
+function addFiles( &$index, $dirname, $dirArray )
 {
     $f = eZClusterFileHandler::instance( $dirname );
     if ( $f->exists() )
@@ -45,6 +45,10 @@ function addFiles( &$index, $dirname )
         $dir = new eZClusterDirectoryIterator( $dirname );
         foreach ( $dir as $file )
         {
+            if ( in_array(  $file->name(), $dirArray ) )
+            {
+                continue;
+            }
             if ( $file->size() > 50 )
             {
                 $date = new xrowSitemapItemModified();
