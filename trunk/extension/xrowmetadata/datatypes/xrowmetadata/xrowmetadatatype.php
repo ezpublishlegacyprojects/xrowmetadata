@@ -218,23 +218,25 @@ class xrowMetaDataType extends eZDataType
      */
     function fetchMetaData( $attribute )
     {
-        try
-        {
-           $xml = new SimpleXMLElement( $attribute->attribute( 'data_text' ) );
-           $meta = new xrowMetaData( htmlspecialchars_decode( (string)$xml->title, ENT_QUOTES ),
-                                     explode( ",", htmlspecialchars_decode( (string)$xml->keywords, ENT_QUOTES ) ),
-                                     htmlspecialchars_decode( (string)$xml->description, ENT_QUOTES ),
-                                     htmlspecialchars_decode( (string)$xml->priority, ENT_QUOTES ),
-                                     htmlspecialchars_decode( (string)$xml->change, ENT_QUOTES ),
-                                     htmlspecialchars_decode( (string)$xml->sitemap_use , ENT_QUOTES ) );
-           return $meta;
-        }
-        catch ( Exception $e )
-        {
-            return new xrowMetaData();
-        }
+       try
+       {
+          $xml = new SimpleXMLElement( $attribute->attribute( 'data_text' ) );
 
+          $keywords = htmlspecialchars_decode( (string) $xml->keywords, ENT_QUOTES );
+          $keywords = !empty( $keywords ) ? explode( ",", $keywords ) : array();
 
+          $meta = new xrowMetaData( htmlspecialchars_decode( (string)$xml->title, ENT_QUOTES ),
+                                    $keywords,
+                                    htmlspecialchars_decode( (string)$xml->description, ENT_QUOTES ),
+                                    htmlspecialchars_decode( (string)$xml->priority, ENT_QUOTES ),
+                                    htmlspecialchars_decode( (string)$xml->change, ENT_QUOTES ),
+                                    htmlspecialchars_decode( (string)$xml->sitemap_use , ENT_QUOTES ) );
+          return $meta;
+       }
+       catch ( Exception $e )
+       {
+           return new xrowMetaData();
+       }
     }
     /*
      * @return xrowMetaData
@@ -341,10 +343,10 @@ class xrowMetaDataType extends eZDataType
         $node = $xml->createElement( "sitemap_use", htmlspecialchars( $meta->sitemap_use, ENT_QUOTES, 'UTF-8' ) );
         $xmldom->appendChild( $node );
         $xml->appendChild( $xmldom );
-       
+
         return $xml->saveXML();
 	}
-    
+
     /*!
      \reimp
      \param package
@@ -356,7 +358,7 @@ class xrowMetaDataType extends eZDataType
 	{
 		$xmlString = self::saveXML( $objectAttribute->content() );
 	    $DOMNode = $this->createContentObjectAttributeDOMNode( $objectAttribute );
-	
+
 	    if ( $xmlString != '' )
 	    {
 	    	$doc = new DOMDocument( '1.0', 'utf-8' );
