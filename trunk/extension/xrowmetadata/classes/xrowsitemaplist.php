@@ -12,13 +12,13 @@ class xrowSitemapList
 {
     public $dom;
     public $root;
-    
+
     const BASENAME = 'urlset';
     const SUFFIX = 'xml';
     const ITEMNAME = 'url';
 
     /**
-     * 
+     *
      */
     function __construct()
     {
@@ -30,9 +30,16 @@ class xrowSitemapList
         $this->root->setAttribute( "xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9" );
         $this->root->setAttribute( "xmlns:image", "http://www.google.com/schemas/sitemap-image/1.1" );
         $this->root->setAttribute( "xmlns:video", "http://www.google.com/schemas/sitemap-video/1.1" );
-        
+
         $this->root->setAttribute( "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
         $this->root->setAttribute( "xsi:schemaLocation", "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd" );
+
+        $ini = $eZINI::instance( 'xrowsitemap.ini' );
+        if ( $ini->hasVariable( 'SitemapSettings', 'CreateAlternateLink' ) )
+        {
+            $this->root->setAttribute( "xmlns:xhtml", "http://www.w3.org/1999/xhtml" );
+        }
+
         $this->dom->appendChild( $this->root );
     }
 
@@ -51,12 +58,12 @@ class xrowSitemapList
         {
             return;
         }
-        
+
         $node = $this->dom->createElement( constant( get_class( $this ) . '::ITEMNAME' ) );
         $subNode = $this->dom->createElement( 'loc' );
         $subNode->appendChild( $this->dom->createTextNode( $url ) );
         $node->appendChild( $subNode );
-        
+
         if ( is_array( $extensions ) )
         {
             foreach ( $extensions as $extension )
@@ -67,6 +74,7 @@ class xrowSitemapList
                 }
             }
         }
+
         // append to root node
         $this->root->appendChild( $node );
     }
@@ -102,7 +110,7 @@ class xrowSitemapList
     /**
      * Gives the xml content
      *
-     * @return string XML 
+     * @return string XML
      */
     function saveXML()
     {

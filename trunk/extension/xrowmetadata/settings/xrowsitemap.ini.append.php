@@ -1,7 +1,7 @@
 <?php /* #?ini charset="utf8"?
 
 [Settings]
-# Offset in days 
+# Offset in days
 #ArchiveTimeShift=60
 # Activate archive cronjob capabilities
 #Archive=enabled
@@ -79,6 +79,16 @@ MobileSitemap=disabled
 #AddFrequencyArray[]
 #AddPriorityArray[0]=always
 
+# create alternate link to mobile website
+# CreateAlternateLink=enabled
+
+# Siteaccess name of the mobile site
+# MobileSiteAccessName=m
+
+# domain name of the mobile site
+# only use this if you have remove siteaccess enabled
+# MobileSiteAccessName=m.example.com
+
 [MobileSitemapSettings]
 # here you need to specify every siteaccess a sitemap shall be created for
 # if no siteaccessarray is given, the default siteaccess will be used for generation
@@ -137,7 +147,7 @@ MobileSitemap=disabled
 #Name=Test
 # if RootNode is other as in content.ini
 #RootNode=12345
-# Addtional Keywords 
+# Addtional Keywords
 #AdditionalKeywordList[]=Music
 #AdditionalKeywordList[]=xrow GmbH
 #Image Alias used for image items
@@ -151,7 +161,7 @@ MobileSitemap=disabled
 #Genres[]
 #Genres[blog]=Blog
 # if you would like to get all objects without limitation for generate xml element <news:access>Subscription</news:access> set it disable
-# after fetch all objects the script will check if anonymus has access to read this object and 
+# after fetch all objects the script will check if anonymus has access to read this object and
 # set <news:access>Subscription</news:access> if not and nothing if anonymus can read this article
 #Limitation=enable
 # if you would like to use more AttributeFilter define here the name of the following AttributeFilter block

@@ -10,8 +10,8 @@ if ( $xrowsitemapINI->hasVariable( 'SitemapSettings', 'AvailableSiteAccessList' 
 }
 else
 {
-    $siteAccessArray = array( 
-        $ini->variable( 'SiteSettings', 'DefaultAccess' ) 
+    $siteAccessArray = array(
+        $ini->variable( 'SiteSettings', 'DefaultAccess' )
     );
 }
 
@@ -27,20 +27,37 @@ if( is_array( $siteAccessArray ) && count( $siteAccessArray ) > 0 )
 }
 
 $index = new xrowSitemapIndex();
-$dirname = eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain();
-$dir = new eZClusterDirectoryIterator( $dirname );
 
-foreach ( $dir as $file )
+$dirArray = array( eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain(),
+                   eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . xrowSitemapTools::FILETYP_ARCHIVE,
+                   eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . xrowSitemapTools::FILETYP_STANDARD );
+
+foreach ( $dirArray as $item )
 {
-    $date = new xrowSitemapItemModified();
-    $date->date = new DateTime( "@" . $file->mtime() );
-    $loc = 'http://' . $_SERVER['HTTP_HOST'] . '/'. $file->name();
-    $index->add( $loc, array( 
-        $date 
-    ) );
+    addFiles( $index, $item );
 }
 
-unset( $dir );
+function addFiles( &$index, $dirname )
+{
+    $f = eZClusterFileHandler::instance( $dirname );
+    if ( $f->exists() )
+    {
+        $dir = new eZClusterDirectoryIterator( $dirname );
+        foreach ( $dir as $file )
+        {
+            if ( $file->size() > 50 )
+            {
+                $date = new xrowSitemapItemModified();
+                $date->date = new DateTime( "@" . $file->mtime() );
+                $loc = 'http://' . $_SERVER['HTTP_HOST'] . '/'. $file->name();
+                $index->add( $loc, array(
+                $date
+                ) );
+            }
+        }
+    }
+
+}
 
 // Append foreign Sitemaps
 if ( $ini->hasVariable( 'Settings', 'AddSitemapIndex' ) )
@@ -48,8 +65,8 @@ if ( $ini->hasVariable( 'Settings', 'AddSitemapIndex' ) )
     $urlList = $ini->variable( 'Settings', 'AddSitemapIndex' );
     foreach ( $urlList as $loc )
     {
-        $index->add( $loc, array( 
-            $date 
+        $index->add( $loc, array(
+            $date
         ) );
     }
 }

@@ -30,9 +30,9 @@ class xrowSitemapTools
         foreach ( $siteaccesses as $siteaccess )
         {
             /* Change the siteaccess */
-            self::changeAccess( array( 
-                "name" => $siteaccess , 
-                "type" => EZ_ACCESS_TYPE_URI 
+            self::changeAccess( array(
+                "name" => $siteaccess ,
+                "type" => EZ_ACCESS_TYPE_URI
             ) );
             call_user_func( $fnc );
         }
@@ -68,7 +68,7 @@ class xrowSitemapTools
     public static function domain()
     {
         $ini = eZINI::instance( 'site.ini' );
-        
+
         $domain = preg_split( '/[\/\:]/i', $ini->variable( 'SiteSettings', 'SiteURL' ), 2 );
         if ( is_array( $domain ) )
         {
@@ -78,7 +78,7 @@ class xrowSitemapTools
             {
                 $domain = $domain2[0];
             }
-        
+
         }
         else
         {
@@ -97,10 +97,10 @@ class xrowSitemapTools
 
     public static function getNewsConverter()
     {
-        $converter = eZExtension::getHandlerClass( new ezpExtensionOptions( array( 
-            'iniFile' => 'xrowsitemap.ini' , 
-            'iniSection' => 'Settings' , 
-            'iniVariable' => 'NewsConverter' 
+        $converter = eZExtension::getHandlerClass( new ezpExtensionOptions( array(
+            'iniFile' => 'xrowsitemap.ini' ,
+            'iniSection' => 'Settings' ,
+            'iniVariable' => 'NewsConverter'
         ) ) );
         if ( ! $converter )
         {
@@ -111,10 +111,10 @@ class xrowSitemapTools
 
     public static function getVideoConverter()
     {
-        $converter = eZExtension::getHandlerClass( new ezpExtensionOptions( array( 
-            'iniFile' => 'xrowsitemap.ini' , 
-            'iniSection' => 'Settings' , 
-            'iniVariable' => 'VideoConverter' 
+        $converter = eZExtension::getHandlerClass( new ezpExtensionOptions( array(
+            'iniFile' => 'xrowsitemap.ini' ,
+            'iniSection' => 'Settings' ,
+            'iniVariable' => 'VideoConverter'
         ) ) );
         if ( ! $converter )
         {
@@ -125,10 +125,10 @@ class xrowSitemapTools
 
     public static function getImageConverter()
     {
-        $converter = eZExtension::getHandlerClass( new ezpExtensionOptions( array( 
-            'iniFile' => 'xrowsitemap.ini' , 
-            'iniSection' => 'Settings' , 
-            'iniVariable' => 'ImageConverter' 
+        $converter = eZExtension::getHandlerClass( new ezpExtensionOptions( array(
+            'iniFile' => 'xrowsitemap.ini' ,
+            'iniSection' => 'Settings' ,
+            'iniVariable' => 'ImageConverter'
         ) ) );
         if ( ! $converter )
         {
@@ -139,15 +139,15 @@ class xrowSitemapTools
 
     public static function fetchImages( eZContentObjectTreeNode $node )
     {
-        
+
         $images = array();
         $ini = eZINI::instance( 'xrowsitemap.ini' );
-        $params = array( 
+        $params = array(
             'Limit' => 999 ,  #Google doesn`t allow more as 1000
-            'ClassFilterType' => 'include' , 
-            'ClassFilterArray' => $ini->variable( 'SitemapSettings', 'ImageClasses' ) 
+            'ClassFilterType' => 'include' ,
+            'ClassFilterArray' => $ini->variable( 'SitemapSettings', 'ImageClasses' )
         );
-        
+
         $nodeArray = $node->subTree( $params );
         foreach ( $nodeArray as $imageNode )
         {
@@ -157,7 +157,7 @@ class xrowSitemapTools
                 $images = array_merge( $images, $imageadd );
             }
         }
-        
+
         return $images;
     }
 
@@ -175,7 +175,7 @@ class xrowSitemapTools
                 self::$excludes = array();
             }
         }
-        
+
         if ( ! empty( self::$excludes ) )
         {
             $result = array();
@@ -197,7 +197,7 @@ class xrowSitemapTools
             return false;
         }
         $extensions = array();
-        
+
         $meta = xrowMetaDataFunctions::fetchByNode( $node );
 
         if ( $meta and $meta->sitemap_use == '0' )
@@ -214,9 +214,27 @@ class xrowSitemapTools
             return false;
         }
         $extensions[] = new xrowSitemapItemModified( $node->attribute( 'modified_subnode' ) );
-        
+
         $url = $node->attribute( 'url_alias' );
         eZURI::transformURI( $url, true );
+
+        if ( $ini->hasVariable( 'SitemapSettings', 'CreateAlternateLink' ) )
+        {
+            if ( $ini->hasVariable( 'SitemapSettings', 'MobileSiteAccessName' ) &&
+            $ini->hasVariable( 'SitemapSettings', 'MobileSiteAccessName' ) != '' )
+            {
+                $mobileSiteAccess = $ini->variable( 'SitemapSettings', 'MobileSiteAccessName' );
+                $mobileURL = 'http://' . self::domain() . '/' . $mobileSiteAccess . $url;
+            }
+            if ( $ini->hasVariable( 'SitemapSettings', 'MobileDomainName' ) &&
+            $ini->hasVariable( 'SitemapSettings', 'MobileDomainName' ) != '' )
+            {
+                $mobileDomain = $ini->variable( 'SitemapSettings', 'MobileDomainName' );
+                $mobileURL = 'http://' . $mobileDomain . $url;
+            }
+            $extensions[] = new xrowSitemapItemAlternateLink( $mobileURL );
+        }
+
         if ( $site_ini->variable( 'SiteAccessSettings', 'RemoveSiteAccessIfDefaultAccess' ) == 'enabled' or $ini->variable( 'Settings', 'HideSiteaccessAlways' ) == 'true' )
         {
             $url = 'http://' . self::domain() . $url;
@@ -225,6 +243,7 @@ class xrowSitemapTools
         {
             $url = 'http://' . self::domain() . '/' . $GLOBALS['eZCurrentAccess']['name'] . $url;
         }
+
         if ( $ini->hasVariable( 'SitemapSettings', 'GalleryClasses' ) and in_array( $node->attribute( 'class_identifier' ), $ini->variable( 'SitemapSettings', 'GalleryClasses' ) ) )
         {
             $imageextensions = self::fetchImages( $node );
@@ -241,7 +260,7 @@ class xrowSitemapTools
         {
             $extensions[] = new xrowSitemapItemFrequency( $meta->change );
         }
-        
+
         if ( $meta and $meta->priority !== null )
         {
             $extensions[] = new xrowSitemapItemPriority( $meta->priority );
@@ -279,7 +298,7 @@ class xrowSitemapTools
         }
         return self::$addPriority;
     }
-    
+
     static public function cleanDir( $dirname )
     {
         $dir = new eZClusterDirectoryIterator( $dirname );
@@ -327,18 +346,18 @@ class xrowSitemapTools
         {
             if( $xrowsitemapINI->hasVariable( 'Settings', 'ArchiveTimeShift' ) )
             {
-                $offset = 3600 * 24 * (int)$xrowsitemapINI->variable( 'Settings', 'ArchiveTimeShift' ); 
+                $offset = 3600 * 24 * (int)$xrowsitemapINI->variable( 'Settings', 'ArchiveTimeShift' );
             }
             else
             {
-                $offset = 3600 * 24 * 30; 
+                $offset = 3600 * 24 * 30;
             }
 
             $time = eZSiteData::fetchByName( self::SITEDATA_ARCHIVE_KEY );
             if ( ! $time )
             {
-                $row = array( 
-                    'name' => self::SITEDATA_ARCHIVE_KEY , 
+                $row = array(
+                    'name' => self::SITEDATA_ARCHIVE_KEY ,
                     'value' => time() - $offset
                 );
                 $time = new eZSiteData( $row );
@@ -352,18 +371,18 @@ class xrowSitemapTools
             }
             $timestamp = $time->attribute( 'value' );
         }
-        eZDebug::writeDebug( "Generating sitemap ...", __METHOD__ );      
+        eZDebug::writeDebug( "Generating sitemap ...", __METHOD__ );
         if ( ! $isQuiet )
         {
             $cli->output( "Generating sitemap for siteaccess " . $GLOBALS['eZCurrentAccess']['name'] . " \n" );
         }
         $ini = eZINI::instance( 'site.ini' );
-        
+
         if ( $xrowsitemapINI->hasVariable( 'SitemapSettings', 'ClassFilterType' ) and $xrowsitemapINI->hasVariable( 'SitemapSettings', 'ClassFilterArray' ) )
         {
-            $params2 = array( 
-                'ClassFilterType' => $xrowsitemapINI->variable( 'SitemapSettings', 'ClassFilterType' ) , 
-                'ClassFilterArray' => $xrowsitemapINI->variable( 'SitemapSettings', 'ClassFilterArray' ) 
+            $params2 = array(
+                'ClassFilterType' => $xrowsitemapINI->variable( 'SitemapSettings', 'ClassFilterType' ) ,
+                'ClassFilterArray' => $xrowsitemapINI->variable( 'SitemapSettings', 'ClassFilterArray' )
             );
         }
         $max = self::MAX_PER_FILE;
@@ -381,17 +400,17 @@ class xrowSitemapTools
             $limit = $max;
         }
         // Fetch the content tree
-        $params = array( 
-            'SortBy' => array( 
-                array( 
-                    'depth' , 
-                    true 
-                ) , 
-                array( 
-                    'published' , 
-                    true 
-                ) 
-            ) 
+        $params = array(
+            'SortBy' => array(
+                array(
+                    'depth' ,
+                    true
+                ) ,
+                array(
+                    'published' ,
+                    true
+                )
+            )
         );
 
         if ( isset( $timestamp ) and $archive === true )
@@ -402,7 +421,7 @@ class xrowSitemapTools
         {
             $params['AttributeFilter'] = array( array( 'published', '>', $timestamp ) );
         }
-        $params['AttributeFilter'][] = array( 'published', '>=', time()-3600*24*35 );
+
         if ( isset( $params2 ) )
         {
             $params = array_merge( $params, $params2 );
@@ -411,7 +430,9 @@ class xrowSitemapTools
         $subtreeCount = eZContentObjectTreeNode::subTreeCountByNodeID( $params, $rootNode->NodeID );
         if ( $subtreeCount <= 1 )
         {
-            throw new Exception( "No Items found under RootNode $rootNode->NodeID." );
+            # could be an old installation with no fresh content!
+            #throw new Exception( "No Items found under RootNode $rootNode->NodeID." );
+            return;
         }
 
         $sitemap = new xrowSitemap();
@@ -555,7 +576,7 @@ class xrowSitemapTools
             $params2 = array();
             $params2['ClassFilterArray'] = $ini->variable( 'NewsSitemapSettings', 'ClassFilterArray' );
             $params2['ClassFilterType'] = 'include';
-        } 
+        }
 
         if ( $ini->hasVariable( 'NewsSitemapSettings', 'Limitation' ) )
         {
@@ -591,29 +612,29 @@ class xrowSitemapTools
             $mtime = $file->mtime() - 300;
             if ( $mtime > 0 )
             {
-                $params = array( 
-                    'IgnoreVisibility' => false , 
-                    'MainNodeOnly' => false , 
-                    
-                    'SortBy' => array( 
-                        array( 
-                            'published' , 
-                            false 
-                        ) 
-                    ) , 
-                    'AttributeFilter' => array( 
-                        'and' , 
-                        array( 
-                            'published' , 
-                            '>' , 
-                            $mtime 
-                        ) , 
-                        array( 
-                            'published' , 
-                            '<=' , 
-                            $till 
-                        ) 
-                    ) 
+                $params = array(
+                    'IgnoreVisibility' => false ,
+                    'MainNodeOnly' => false ,
+
+                    'SortBy' => array(
+                        array(
+                            'published' ,
+                            false
+                        )
+                    ) ,
+                    'AttributeFilter' => array(
+                        'and' ,
+                        array(
+                            'published' ,
+                            '>' ,
+                            $mtime
+                        ) ,
+                        array(
+                            'published' ,
+                            '<=' ,
+                            $till
+                        )
+                    )
                 );
                 if ( isset( $params2 ) )
                 {
@@ -642,29 +663,29 @@ class xrowSitemapTools
                 }
             }
         }
-        $params = array( 
-            'IgnoreVisibility' => false , 
-            'MainNodeOnly' => false , 
-            
-            'SortBy' => array( 
-                array( 
-                    'published' , 
-                    false 
-                ) 
-            ) , 
-            'AttributeFilter' => array( 
-                'and' , 
-                array( 
-                    'published' , 
-                    '>' , 
-                    $from 
-                ) , 
-                array( 
-                    'published' , 
-                    '<=' , 
-                    $till 
-                ) 
-            ) 
+        $params = array(
+            'IgnoreVisibility' => false ,
+            'MainNodeOnly' => false ,
+
+            'SortBy' => array(
+                array(
+                    'published' ,
+                    false
+                )
+            ) ,
+            'AttributeFilter' => array(
+                'and' ,
+                array(
+                    'published' ,
+                    '>' ,
+                    $from
+                ) ,
+                array(
+                    'published' ,
+                    '<=' ,
+                    $till
+                )
+            )
         );
         if ( isset( $params2 ) )
         {
@@ -716,7 +737,7 @@ class xrowSitemapTools
                     $bar = new ezcConsoleProgressbar( $output, $max );
                 }
             }
-            
+
             // Generate Sitemap
             $sitemap = new xrowSitemap();
             while ( $params['Offset'] < $max_all )
@@ -731,12 +752,12 @@ class xrowSitemapTools
                     {
                         $extensions = array_merge( $extensions, $imageadd );
                     }
-                    
+
                     $url = $node->attribute( 'url_alias' );
                     eZURI::transformURI( $url, true );
                     $url = 'http://' . self::domain() . $url;
                     $sitemap->add( $url, $extensions );
-                    
+
                     if ( isset( $bar ) )
                     {
                         $bar->advance();
@@ -787,26 +808,26 @@ class xrowSitemapTools
         // Settings variables
         if ( $xrowsitemapINI->hasVariable( 'MobileSitemapSettings', 'ClassFilterType' ) and $xrowsitemapINI->hasVariable( 'MobileSitemapSettings', 'ClassFilterArray' ) )
         {
-            $params2 = array( 
-                'ClassFilterType' => $xrowsitemapINI->variable( 'MobileSitemapSettings', 'ClassFilterType' ) , 
-                'ClassFilterArray' => $xrowsitemapINI->variable( 'MobileSitemapSettings', 'ClassFilterArray' ) 
+            $params2 = array(
+                'ClassFilterType' => $xrowsitemapINI->variable( 'MobileSitemapSettings', 'ClassFilterType' ) ,
+                'ClassFilterArray' => $xrowsitemapINI->variable( 'MobileSitemapSettings', 'ClassFilterArray' )
             );
         }
         $max = self::MAX_PER_FILE;
         $limit = 50;
 
         // Fetch the content tree
-        $params = array( 
-            'SortBy' => array( 
-                array( 
-                    'depth' , 
-                    true 
-                ) , 
-                array( 
-                    'published' , 
-                    true 
-                ) 
-            ) 
+        $params = array(
+            'SortBy' => array(
+                array(
+                    'depth' ,
+                    true
+                ) ,
+                array(
+                    'published' ,
+                    true
+                )
+            )
         );
         if ( isset( $params2 ) )
         {
@@ -842,7 +863,7 @@ class xrowSitemapTools
         $meta = xrowMetaDataFunctions::fetchByObject( $object );
         $extensions = array();
         $extensions[] = new xrowSitemapItemModified( $rootNode->attribute( 'modified_subnode' ) );
-        
+
         $url = $rootNode->attribute( 'url_alias' );
         eZURI::transformURI( $url );
         $url = 'http://' . self::domain() . $url;
@@ -957,7 +978,7 @@ class xrowSitemapTools
 
         $userID = $user->attribute( 'contentobject_id' );
         $origFunctionName = $functionName;
-        
+
         // Fetch the ID of the language if we get a string with a language code
         // e.g. 'eng-GB'
         $originalLanguage = $language;
@@ -973,7 +994,7 @@ class xrowSitemapTools
         // This will be filled in with the available languages of the object
         // if a Language check is performed.
         $languageList = false;
-        
+
         // The 'move' function simply reuses 'edit' for generic access
         // but adds another top-level check below
         // The original function is still available in $origFunctionName
@@ -1114,9 +1135,9 @@ class xrowSitemapTools
                                         else
                                         {
                                             $access = 'denied';
-                                            $limitationList = array( 
-                                                'Limitation' => $key , 
-                                                'Required' => $limitationArray[$key] 
+                                            $limitationList = array(
+                                                'Limitation' => $key ,
+                                                'Required' => $limitationArray[$key]
                                             );
                                         }
                                     }
@@ -1133,9 +1154,9 @@ class xrowSitemapTools
                                 else
                                 {
                                     $access = 'denied';
-                                    $limitationList = array( 
-                                        'Limitation' => $key , 
-                                        'Required' => $limitationArray[$key] 
+                                    $limitationList = array(
+                                        'Limitation' => $key ,
+                                        'Required' => $limitationArray[$key]
                                     );
                                 }
                             }
@@ -1160,9 +1181,9 @@ class xrowSitemapTools
                                 if ( $access != 'allowed' )
                                 {
                                     $access = 'denied';
-                                    $limitationList = array( 
-                                        'Limitation' => $key , 
-                                        'Required' => $limitationArray[$key] 
+                                    $limitationList = array(
+                                        'Limitation' => $key ,
+                                        'Required' => $limitationArray[$key]
                                     );
                                 }
                             }
@@ -1178,9 +1199,9 @@ class xrowSitemapTools
                                 else
                                 {
                                     $access = 'denied';
-                                    $limitationList = array( 
-                                        'Limitation' => $key , 
-                                        'Required' => $limitationArray[$key] 
+                                    $limitationList = array(
+                                        'Limitation' => $key ,
+                                        'Required' => $limitationArray[$key]
                                     );
                                 }
                             }
@@ -1191,7 +1212,7 @@ class xrowSitemapTools
                                 $languageMask = 0;
                                 // If we don't have a language list yet we need to fetch it
                                 // and optionally filter out based on $language.
-                                
+
 
                                 if ( $functionName == 'create' )
                                 {
@@ -1240,9 +1261,9 @@ class xrowSitemapTools
                                 else
                                 {
                                     $access = 'denied';
-                                    $limitationList = array( 
-                                        'Limitation' => $key , 
-                                        'Required' => $limitationArray[$key] 
+                                    $limitationList = array(
+                                        'Limitation' => $key ,
+                                        'Required' => $limitationArray[$key]
                                     );
                                 }
                             }
@@ -1260,7 +1281,7 @@ class xrowSitemapTools
                                         $access = 'allowed';
                                     }
                                 }
-                                else 
+                                else
                                     if ( $contentobject->attribute( 'owner_id' ) == $userID || $contentobject->ID == $userID )
                                     {
                                         $access = 'allowed';
@@ -1268,9 +1289,9 @@ class xrowSitemapTools
                                 if ( $access != 'allowed' )
                                 {
                                     $access = 'denied';
-                                    $limitationList = array( 
-                                        'Limitation' => $key , 
-                                        'Required' => $limitationArray[$key] 
+                                    $limitationList = array(
+                                        'Limitation' => $key ,
+                                        'Required' => $limitationArray[$key]
                                     );
                                 }
                             }
@@ -1280,13 +1301,13 @@ class xrowSitemapTools
                             case 'ParentGroup':
                             {
                                 $access = $contentobject->checkGroupLimitationAccess( $limitationArray[$key], $userID );
-                                
+
                                 if ( $access != 'allowed' )
                                 {
                                     $access = 'denied';
-                                    $limitationList = array( 
-                                        'Limitation' => $key , 
-                                        'Required' => $limitationArray[$key] 
+                                    $limitationList = array(
+                                        'Limitation' => $key ,
+                                        'Required' => $limitationArray[$key]
                                     );
                                 }
                             }
@@ -1297,9 +1318,9 @@ class xrowSitemapTools
                                 if ( count( array_intersect( $limitationArray[$key], $contentobject->attribute( 'state_id_array' ) ) ) == 0 )
                                 {
                                     $access = 'denied';
-                                    $limitationList = array( 
-                                        'Limitation' => $key , 
-                                        'Required' => $limitationArray[$key] 
+                                    $limitationList = array(
+                                        'Limitation' => $key ,
+                                        'Required' => $limitationArray[$key]
                                     );
                                 }
                                 else
@@ -1328,9 +1349,9 @@ class xrowSitemapTools
                                 {
                                     $access = 'denied';
                                     // ??? TODO: if there is a limitation on Subtree, return two limitations?
-                                    $limitationList = array( 
-                                        'Limitation' => $key , 
-                                        'Required' => $limitationArray[$key] 
+                                    $limitationList = array(
+                                        'Limitation' => $key ,
+                                        'Required' => $limitationArray[$key]
                                     );
                                 }
                                 else
@@ -1379,7 +1400,7 @@ class xrowSitemapTools
                                         {
                                             $parentNode = eZContentObjectTreeNode::fetch( $parentNode, false, false );
                                             $path = $parentNode['path_string'];
-                                            
+
                                             $subtreeArray = $limitationArray[$key];
                                             foreach ( $subtreeArray as $subtreeString )
                                             {
@@ -1397,9 +1418,9 @@ class xrowSitemapTools
                                 {
                                     $access = 'denied';
                                     // ??? TODO: if there is a limitation on Node, return two limitations?
-                                    $limitationList = array( 
-                                        'Limitation' => $key , 
-                                        'Required' => $limitationArray[$key] 
+                                    $limitationList = array(
+                                        'Limitation' => $key ,
+                                        'Required' => $limitationArray[$key]
                                     );
                                 }
                                 else
@@ -1444,7 +1465,7 @@ class xrowSitemapTools
                                         {
                                             $parentNode = eZContentObjectTreeNode::fetch( $parentNode, false, false );
                                             $path = $parentNode['path_string'];
-                                            
+
                                             $subtreeArray = $limitationArray[$key];
                                             foreach ( $subtreeArray as $subtreeString )
                                             {
@@ -1460,9 +1481,9 @@ class xrowSitemapTools
                                 if ( $access != 'allowed' )
                                 {
                                     $access = 'denied';
-                                    $limitationList = array( 
-                                        'Limitation' => $key , 
-                                        'Required' => $limitationArray[$key] 
+                                    $limitationList = array(
+                                        'Limitation' => $key ,
+                                        'Required' => $limitationArray[$key]
                                     );
                                 }
                             }
@@ -1475,9 +1496,9 @@ class xrowSitemapTools
                                     if ( count( array_intersect( $limitationArray[$key], $contentobject->attribute( 'state_id_array' ) ) ) == 0 )
                                     {
                                         $access = 'denied';
-                                        $limitationList = array( 
-                                            'Limitation' => $key , 
-                                            'Required' => $limitationArray[$key] 
+                                        $limitationList = array(
+                                            'Limitation' => $key ,
+                                            'Required' => $limitationArray[$key]
                                         );
                                     }
                                     else
@@ -1493,9 +1514,9 @@ class xrowSitemapTools
                         }
                     }
 
-                    $policyList[] = array( 
-                        'PolicyID' => $pkey , 
-                        'LimitationList' => $limitationList 
+                    $policyList[] = array(
+                        'PolicyID' => $pkey ,
+                        'LimitationList' => $limitationList
                     );
                 }
 
@@ -1526,14 +1547,14 @@ class xrowSitemapTools
                     }
                     else
                     {
-                        return array( 
-                            'FunctionRequired' => array( 
-                                'Module' => 'content' , 
-                                'Function' => $origFunctionName , 
-                                'ClassID' => $classID , 
-                                'MainNodeID' => $contentobject->attribute( 'main_node_id' ) 
-                            ) , 
-                            'PolicyList' => $policyList 
+                        return array(
+                            'FunctionRequired' => array(
+                                'Module' => 'content' ,
+                                'Function' => $origFunctionName ,
+                                'ClassID' => $classID ,
+                                'MainNodeID' => $contentobject->attribute( 'main_node_id' )
+                            ) ,
+                            'PolicyList' => $policyList
                         );
                     }
                 }
