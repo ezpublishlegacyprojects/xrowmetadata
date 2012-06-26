@@ -34,7 +34,7 @@ class xrowSitemapList
         $this->root->setAttribute( "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance" );
         $this->root->setAttribute( "xsi:schemaLocation", "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd" );
 
-        $ini = $eZINI::instance( 'xrowsitemap.ini' );
+        $ini = eZINI::instance( 'xrowsitemap.ini' );
         if ( $ini->hasVariable( 'SitemapSettings', 'CreateAlternateLink' ) )
         {
             $this->root->setAttribute( "xmlns:xhtml", "http://www.w3.org/1999/xhtml" );
