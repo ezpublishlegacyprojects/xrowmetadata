@@ -42,6 +42,7 @@ foreach ( $dirArray as $item )
 function addFiles( &$index, $dirname, $dirArray )
 {
     $dir = new eZClusterDirectoryIterator( $dirname );
+    
     foreach ( $dir as $file )
     {
         $f = eZClusterFileHandler::instance( $file->name() );
@@ -51,11 +52,11 @@ function addFiles( &$index, $dirname, $dirArray )
             break;
         }
     }
-
     if ( false != $exists )
     {
         foreach ( $dir as $file )
         {
+            
             if ( in_array( $file->name(), $dirArray ) )
             {
                 continue;
@@ -65,9 +66,13 @@ function addFiles( &$index, $dirname, $dirArray )
                 $date = new xrowSitemapItemModified();
                 $date->date = new DateTime( "@" . $file->mtime() );
                 $loc = 'http://' . $_SERVER['HTTP_HOST'] . '/' . $file->name();
-                $index->add( $loc, array( 
-                    $date 
-                ) );
+                if ( !in_array( $loc, $GLOBALS['loc'] ) )
+                {
+                    $GLOBALS['loc'][] = $loc;
+                    $index->add( $loc, array( 
+                        $date 
+                    ) );
+                }
             }
         }
     }
