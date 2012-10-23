@@ -90,6 +90,7 @@ if ( $ini->hasVariable( 'Settings', 'AddSitemapIndex' ) )
         ) );
     }
 }
+unset($GLOBALS['loc']);
 $content = $index->saveXML();
 
 // Set header settings
