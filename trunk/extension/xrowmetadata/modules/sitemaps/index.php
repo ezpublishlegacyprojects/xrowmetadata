@@ -10,15 +10,15 @@ if ( $xrowsitemapINI->hasVariable( 'SitemapSettings', 'AvailableSiteAccessList' 
 }
 else
 {
-    $siteAccessArray = array(
-        $ini->variable( 'SiteSettings', 'DefaultAccess' )
+    $siteAccessArray = array( 
+        $ini->variable( 'SiteSettings', 'DefaultAccess' ) 
     );
 }
 
 $Module = $Params['Module'];
 $access = $GLOBALS['eZCurrentAccess']['name'];
 
-if( is_array( $siteAccessArray ) && count( $siteAccessArray ) > 0 )
+if ( is_array( $siteAccessArray ) && count( $siteAccessArray ) > 0 )
 {
     if ( ! in_array( $access, $siteAccessArray ) )
     {
@@ -28,9 +28,11 @@ if( is_array( $siteAccessArray ) && count( $siteAccessArray ) > 0 )
 
 $index = new xrowSitemapIndex();
 
-$dirArray = array( eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain(),
-                   eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . xrowSitemapTools::FILETYP_ARCHIVE,
-                   eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . xrowSitemapTools::FILETYP_STANDARD );
+$dirArray = array( 
+    eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() , 
+    eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . xrowSitemapTools::FILETYP_ARCHIVE , 
+    eZSys::storageDirectory() . '/sitemap/' . xrowSitemapTools::domain() . '/' . xrowSitemapTools::FILETYP_STANDARD 
+);
 
 foreach ( $dirArray as $item )
 {
@@ -39,13 +41,22 @@ foreach ( $dirArray as $item )
 
 function addFiles( &$index, $dirname, $dirArray )
 {
-    $f = eZClusterFileHandler::instance( $dirname );
-    if ( $f->exists() )
+    $dir = new eZClusterDirectoryIterator( $dirname );
+    foreach ( $dir as $file )
     {
-        $dir = new eZClusterDirectoryIterator( $dirname );
+        $f = eZClusterFileHandler::instance( $file->name() );
+        if ( $f->exists() )
+        {
+            $exists = true;
+            break;
+        }
+    }
+
+    if ( false != $exists )
+    {
         foreach ( $dir as $file )
         {
-            if ( in_array(  $file->name(), $dirArray ) )
+            if ( in_array( $file->name(), $dirArray ) )
             {
                 continue;
             }
@@ -53,9 +64,9 @@ function addFiles( &$index, $dirname, $dirArray )
             {
                 $date = new xrowSitemapItemModified();
                 $date->date = new DateTime( "@" . $file->mtime() );
-                $loc = 'http://' . $_SERVER['HTTP_HOST'] . '/'. $file->name();
-                $index->add( $loc, array(
-                $date
+                $loc = 'http://' . $_SERVER['HTTP_HOST'] . '/' . $file->name();
+                $index->add( $loc, array( 
+                    $date 
                 ) );
             }
         }
@@ -69,8 +80,8 @@ if ( $ini->hasVariable( 'Settings', 'AddSitemapIndex' ) )
     $urlList = $ini->variable( 'Settings', 'AddSitemapIndex' );
     foreach ( $urlList as $loc )
     {
-        $index->add( $loc, array(
-            $date
+        $index->add( $loc, array( 
+            $date 
         ) );
     }
 }
